@@ -14,9 +14,9 @@ import { TempleService } from '../services/temple.service';
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
           <span class="mb-2 md:mb-0">Om Namo Venkatesaya</span>
           <div class="flex gap-4">
-            <a href="tel:+919999999999" class="hover:text-white transition-colors">Help Desk</a>
+            <a [href]="'tel:' + templeService.siteConfig().contactPhone" class="hover:text-white transition-colors">Help Desk: {{ templeService.siteConfig().contactPhone }}</a>
             <span>|</span>
-            <a href="#" class="hover:text-white transition-colors">Tenders</a>
+            <a [href]="templeService.siteConfig().liveLink" target="_blank" class="hover:text-white transition-colors animate-pulse font-bold text-amber-400">Live Darshan</a>
             <span>|</span>
             @if (templeService.isAdmin()) {
               <button (click)="templeService.logout()" class="font-bold text-amber-400 hover:text-amber-200">Logout (Admin)</button>
@@ -33,11 +33,11 @@ import { TempleService } from '../services/temple.service';
           <!-- Logo Area -->
           <div class="flex items-center gap-4">
             <div class="w-16 h-16 md:w-20 md:h-20 bg-amber-100 rounded-full flex items-center justify-center border-2 border-red-800 shadow-inner overflow-hidden">
-               <img src="https://picsum.photos/id/1047/100/100" alt="Logo" class="object-cover w-full h-full opacity-90" />
+               <img [src]="templeService.siteConfig().logoUrl" alt="Logo" class="object-cover w-full h-full opacity-90" />
             </div>
             <div>
-              <h1 class="text-xl md:text-2xl font-bold text-red-900 leading-tight">Uttarandhra Tirupati</h1>
-              <p class="text-xs md:text-sm text-stone-600 font-semibold tracking-wide">Shri Venkateswara Swamy Temple, Pendurthi</p>
+              <h1 class="text-xl md:text-2xl font-bold text-red-900 leading-tight">{{ templeService.siteConfig().templeName }}</h1>
+              <p class="text-xs md:text-sm text-stone-600 font-semibold tracking-wide">{{ templeService.siteConfig().subTitle }}</p>
             </div>
           </div>
 
@@ -88,11 +88,10 @@ import { TempleService } from '../services/temple.service';
         <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 class="text-xl font-bold text-amber-500 mb-4 font-serif">Contact Us</h3>
-            <p class="mb-2"><strong>Uttarandhra Tirupati</strong></p>
-            <p class="mb-1">Shri Venkateswara Swamy Temple</p>
-            <p class="mb-1">Balaji Nagar, Pendurthi</p>
-            <p class="mb-1">Visakhapatnam, Andhra Pradesh 531173</p>
-            <p class="mt-4 text-sm text-stone-400">Email: helpdesk&#64;uttarandhratirupati.org</p>
+            <p class="mb-2"><strong>{{ templeService.siteConfig().templeName }}</strong></p>
+            <p class="mb-1">Pendurthi, Visakhapatnam</p>
+            <p class="mb-1">{{ templeService.siteConfig().subTitle }}</p>
+            <p class="mt-4 text-sm text-stone-400">Email: {{ templeService.siteConfig().contactEmail }}</p>
           </div>
           <div>
             <h3 class="text-xl font-bold text-amber-500 mb-4 font-serif">Quick Links</h3>
@@ -100,7 +99,7 @@ import { TempleService } from '../services/temple.service';
               <li><a routerLink="/e-hundi" class="hover:text-amber-400 transition-colors">E-Hundi Donation</a></li>
               <li><a routerLink="/library" class="hover:text-amber-400 transition-colors">Spiritual Library</a></li>
               <li><a routerLink="/gallery" class="hover:text-amber-400 transition-colors">Photo Gallery</a></li>
-              <li><a href="https://www.youtube.com/@ramanujampendurthi1012" target="_blank" class="hover:text-amber-400 transition-colors">YouTube Channel</a></li>
+              <li><a [href]="templeService.siteConfig().liveLink" target="_blank" class="hover:text-amber-400 transition-colors">YouTube Channel</a></li>
               <li><a routerLink="/feedback" class="hover:text-amber-400 transition-colors">Devotee Feedback</a></li>
             </ul>
           </div>
@@ -116,7 +115,7 @@ import { TempleService } from '../services/temple.service';
           </div>
         </div>
         <div class="text-center mt-12 pt-8 border-t border-stone-800 text-sm text-stone-500">
-          <p>&copy; 2024 Uttarandhra Tirupati Devasthanam. All Rights Reserved.</p>
+          <p>&copy; 2024 {{ templeService.siteConfig().templeName }}. All Rights Reserved.</p>
         </div>
       </footer>
     </div>

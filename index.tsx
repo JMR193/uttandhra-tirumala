@@ -9,9 +9,11 @@ import { EHundiComponent } from './src/components/ehundi.component';
 import { GalleryComponent } from './src/components/gallery.component';
 import { FeedbackComponent } from './src/components/feedback.component';
 import { LibraryComponent } from './src/components/library.component';
+import { HistoryComponent } from './src/components/history.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
+  { path: 'history', component: HistoryComponent },
   { path: 'admin', component: AdminComponent },
   { path: 'e-hundi', component: EHundiComponent },
   { path: 'gallery', component: GalleryComponent },
