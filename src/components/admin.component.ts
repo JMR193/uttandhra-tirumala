@@ -141,6 +141,17 @@ import * as d3 from 'd3';
                  </div>
               </div>
 
+              <!-- Edge Function Tester -->
+               <div class="bg-white p-6 rounded-xl shadow-lg border border-indigo-100 mb-8">
+                  <h3 class="text-lg font-bold text-indigo-900 mb-4 font-serif">Server Health Check (Edge Function)</h3>
+                  <div class="flex gap-4 items-center">
+                    <button (click)="testEdgeFunction()" [disabled]="testingEdge" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50">
+                       {{ testingEdge ? 'Connecting...' : 'Ping Server' }}
+                    </button>
+                    <span class="font-mono text-sm bg-stone-100 px-3 py-2 rounded border border-stone-200 flex-grow">{{ edgeResponse }}</span>
+                  </div>
+               </div>
+
               <!-- Visualizations Row -->
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 <!-- Bar Chart -->
@@ -197,6 +208,30 @@ import * as d3 from 'd3';
                                 <p class="text-amber-600 text-sm font-bold mt-2 animate-pulse">Uploading...</p>
                              }
                           </div>
+                       </div>
+                    </div>
+
+                    <!-- Daily Panchangam Upload Section -->
+                    <div class="mb-8 p-6 bg-yellow-50 rounded-lg border border-yellow-200">
+                       <h3 class="font-bold text-red-800 mb-4 flex items-center gap-2">
+                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
+                           Daily Panchangam Image
+                       </h3>
+                       <div class="flex flex-col md:flex-row gap-6 items-start">
+                           @if (tempConfig.panchangamImageUrl) {
+                               <div class="w-32 md:w-48 bg-white p-1 border border-amber-200 shadow-sm">
+                                   <img [src]="tempConfig.panchangamImageUrl" class="w-full h-auto">
+                                   <p class="text-[10px] text-center mt-1 text-stone-500">Current Sheet</p>
+                               </div>
+                           }
+                           <div class="flex-grow">
+                               <label class="block text-sm font-bold text-stone-600 mb-2">Upload Today's Panchangam</label>
+                               <input type="file" (change)="handlePanchangamUpload($event)" accept="image/*" class="block w-full text-sm text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200 cursor-pointer">
+                               <p class="text-xs text-stone-400 mt-2">Upload an image (JPG/PNG) of the daily almanac sheet to display on the home page.</p>
+                               @if (panchangamUploading) {
+                                   <p class="text-amber-600 text-sm font-bold mt-2 animate-pulse">Uploading...</p>
+                               }
+                           </div>
                        </div>
                     </div>
 
@@ -273,7 +308,7 @@ import * as d3 from 'd3';
                     </div>
 
                     <div class="mt-8">
-                      <button type="submit" [disabled]="logoUploading" class="bg-red-900 hover:bg-red-800 text-white px-8 py-3 rounded-lg font-bold shadow-lg transform hover:-translate-y-1 transition-all disabled:opacity-50">
+                      <button type="submit" [disabled]="logoUploading || panchangamUploading" class="bg-red-900 hover:bg-red-800 text-white px-8 py-3 rounded-lg font-bold shadow-lg transform hover:-translate-y-1 transition-all disabled:opacity-50">
                          Save Configuration
                       </button>
                     </div>
@@ -455,10 +490,15 @@ export class AdminComponent implements AfterViewInit {
   @ViewChild('pieChartContainer') pieChartContainer: ElementRef | undefined;
   pieLegend = signal<{label: string, color: string}[]>([]);
   flashNewsInput = '';
+  
+  // Edge Function Testing
+  testingEdge = false;
+  edgeResponse = 'Ready to test';
 
   // Settings
   tempConfig: SiteConfig = { ...this.templeService.siteConfig() };
   logoUploading = false;
+  panchangamUploading = false;
 
   // Donations
   private _donationFilter = signal('All');
@@ -550,6 +590,19 @@ export class AdminComponent implements AfterViewInit {
   }
 
   // --- Dashboard Logic ---
+  
+  async testEdgeFunction() {
+    this.testingEdge = true;
+    this.edgeResponse = 'Connecting...';
+    try {
+       const res = await this.templeService.invokeHelloFunction('Admin');
+       this.edgeResponse = res;
+    } catch(e) {
+       this.edgeResponse = 'Connection Failed';
+    }
+    this.testingEdge = false;
+  }
+
   renderCharts() {
     if (!this.barChartContainer || !this.pieChartContainer) return;
     
@@ -652,6 +705,19 @@ export class AdminComponent implements AfterViewInit {
         if (url) this.tempConfig.logoUrl = url;
         this.logoUploading = false;
      }
+  }
+  
+  async handlePanchangamUpload(event: any) {
+      const file = event.target.files[0];
+      if (file) {
+          this.panchangamUploading = true;
+          // Upload to images bucket
+          const url = await this.templeService.uploadFile(file, 'images');
+          if (url) {
+              this.tempConfig.panchangamImageUrl = url;
+          }
+          this.panchangamUploading = false;
+      }
   }
 
   async handleQrUpload(event: any) {

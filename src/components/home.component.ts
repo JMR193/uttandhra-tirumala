@@ -124,41 +124,95 @@ import { CommonModule } from '@angular/common';
              </div>
           </div>
 
-          <!-- YouTube / Media Column -->
-          <div class="md:w-1/3">
-             <div class="bg-[#800000] text-white p-3 rounded-t-lg font-bold uppercase text-sm">
-                From Our YouTube Channel
-             </div>
-             <div class="bg-stone-50 border border-t-0 border-stone-200 p-4 rounded-b-lg">
-                <p class="text-xs text-stone-500 mb-4">Watch the latest spiritual discourses and events from {{ templeService.siteConfig().templeName }}.</p>
-                
-                <div class="space-y-4">
-                   @for (video of recentVideos(); track video.id) {
-                      <a [href]="video.url" target="_blank" class="flex gap-3 group">
-                         <div class="w-24 h-16 bg-black flex-shrink-0 relative overflow-hidden rounded">
-                            <img [src]="getThumbnail(video.url)" class="w-full h-full object-cover opacity-80 group-hover:opacity-100">
-                            <div class="absolute inset-0 flex items-center justify-center">
-                               <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center"><svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-                            </div>
-                         </div>
-                         <div>
-                            <p class="text-sm font-bold text-stone-800 line-clamp-2 group-hover:text-[#800000]">{{ video.caption }}</p>
-                         </div>
-                      </a>
-                   }
+          <!-- Right Sidebar Column (Panchangam + Media) -->
+          <div class="md:w-1/3 flex flex-col gap-8">
+             
+             <!-- Panchangam Widget -->
+             <div class="bg-white rounded-lg shadow-md border border-amber-200 overflow-hidden">
+                <div class="bg-amber-500 text-red-900 p-3 font-bold uppercase text-sm flex justify-between items-center shadow-sm">
+                   <span class="flex items-center gap-2">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
+                     Daily Panchangam
+                   </span>
+                   <span class="text-[10px] bg-red-900 text-white px-2 py-0.5 rounded shadow">{{ templeService.dailyPanchangam().date.split(',')[0] }}</span>
                 </div>
                 
-                <a [href]="templeService.siteConfig().liveLink" target="_blank" class="block w-full text-center mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded text-sm transition-colors">
-                   Subscribe for More
-                </a>
+                <div class="p-4 bg-orange-50">
+                    <p class="text-center font-serif font-bold text-lg text-[#800000] mb-3 leading-tight">{{ templeService.dailyPanchangam().date }}</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-sm text-stone-700 mb-4 border-b border-stone-200 pb-4">
+                       <div class="flex flex-col items-center">
+                          <span class="text-[10px] text-stone-500 font-bold uppercase tracking-wider">Tithi</span>
+                          <span class="font-bold text-base text-stone-900">{{ templeService.dailyPanchangam().tithi }}</span>
+                       </div>
+                       <div class="flex flex-col items-center">
+                          <span class="text-[10px] text-stone-500 font-bold uppercase tracking-wider">Nakshatra</span>
+                          <span class="font-bold text-base text-stone-900">{{ templeService.dailyPanchangam().nakshatra }}</span>
+                       </div>
+                    </div>
 
-                <!-- WhatsApp Button -->
-                @if (templeService.siteConfig().whatsappChannel) {
-                    <a [href]="templeService.siteConfig().whatsappChannel" target="_blank" class="mt-4 block w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-center transition-colors shadow-md flex items-center justify-center gap-2 text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/></svg>
-                        Follow on WhatsApp Channel
-                    </a>
-                }
+                    <div class="space-y-2 text-sm mb-4">
+                       <div class="flex justify-between items-center bg-white p-2 rounded border border-stone-100 shadow-sm">
+                          <span class="text-stone-600 font-semibold text-xs uppercase">Rahu Kalam</span>
+                          <span class="font-mono font-bold text-red-800">{{ templeService.dailyPanchangam().rahuKalam }}</span>
+                       </div>
+                       <div class="flex justify-between items-center bg-white p-2 rounded border border-stone-100 shadow-sm">
+                          <span class="text-stone-600 font-semibold text-xs uppercase">Yamagandam</span>
+                          <span class="font-mono font-bold text-red-800">{{ templeService.dailyPanchangam().yamagandam }}</span>
+                       </div>
+                    </div>
+                    
+                    <div class="flex justify-around mt-2 text-xs font-bold text-amber-800 bg-amber-100 py-2 rounded">
+                       <span class="flex items-center gap-1">☀️ Sunrise: {{ templeService.dailyPanchangam().sunrise }}</span>
+                       <span class="flex items-center gap-1">🌙 Sunset: {{ templeService.dailyPanchangam().sunset }}</span>
+                    </div>
+
+                    @if (templeService.siteConfig().panchangamImageUrl) {
+                      <div class="mt-4 pt-4 border-t border-amber-200 text-center">
+                         <span class="text-xs font-bold text-amber-800 uppercase block mb-2">Today's Sheet</span>
+                         <img [src]="templeService.siteConfig().panchangamImageUrl" class="w-full rounded border border-amber-300 shadow-sm">
+                         <a [href]="templeService.siteConfig().panchangamImageUrl" target="_blank" class="text-[10px] text-blue-600 font-bold mt-1 inline-block hover:underline">View Full Size</a>
+                      </div>
+                    }
+                </div>
+             </div>
+
+             <!-- Official Media Channels -->
+             <div class="rounded-lg shadow-md overflow-hidden bg-white border border-stone-200">
+                <div class="bg-[#800000] text-white p-3 font-bold uppercase text-sm border-b border-red-900">
+                   Official Media Channels
+                </div>
+                <div class="p-4 bg-white">
+                   <p class="text-xs text-stone-500 mb-4">Watch the latest spiritual discourses and events from {{ templeService.siteConfig().templeName }}.</p>
+                   
+                   <div class="space-y-4">
+                      @for (video of recentVideos(); track video.id) {
+                         <a [href]="video.url" target="_blank" class="flex gap-3 group">
+                            <div class="w-24 h-16 bg-black flex-shrink-0 relative overflow-hidden rounded shadow-sm">
+                               <img [src]="getThumbnail(video.url)" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
+                               <div class="absolute inset-0 flex items-center justify-center">
+                                  <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform"><svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                               </div>
+                            </div>
+                            <div>
+                               <p class="text-sm font-bold text-stone-800 line-clamp-2 group-hover:text-[#800000] transition-colors">{{ video.caption }}</p>
+                            </div>
+                         </a>
+                      }
+                   </div>
+                   
+                   <a [href]="templeService.siteConfig().liveLink" target="_blank" class="block w-full text-center mt-5 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded text-sm transition-colors shadow-sm">
+                      Subscribe for More
+                   </a>
+
+                   <!-- WhatsApp Button -->
+                   @if (templeService.siteConfig().whatsappChannel) {
+                       <a [href]="templeService.siteConfig().whatsappChannel" target="_blank" class="mt-4 block w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-center transition-colors shadow-md flex items-center justify-center gap-2 text-sm">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/></svg>
+                           Follow on WhatsApp Channel
+                       </a>
+                   }
+                </div>
              </div>
           </div>
 

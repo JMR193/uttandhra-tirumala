@@ -139,7 +139,7 @@ import { TempleService } from '../services/temple.service';
               <div class="flex flex-col items-center justify-center py-12">
                  <div class="w-16 h-16 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin mb-4"></div>
                  <p class="text-xl font-bold text-stone-700">Processing...</p>
-                 <p class="text-sm text-stone-500">Verifying details...</p>
+                 <p class="text-sm text-stone-500 animate-pulse">Verifying with Server...</p>
               </div>
             } @else if (step() === 'success') {
               <!-- Receipt View -->
@@ -212,32 +212,39 @@ export class EHundiComponent {
   }
 
   recordOfflineDonation() {
-    // Logic for offline recording could be different (e.g., set status to 'Pending')
-    // For now we simulate success but generate a different ID format
     this.initiateTransaction();
   }
 
-  private initiateTransaction() {
+  private async initiateTransaction() {
     this.step.set('processing');
     
-    setTimeout(() => {
-      this.transactionId = (this.paymentMode === 'online' ? 'TXN' : 'OFF') + Math.floor(Math.random() * 10000000).toString();
-      this.currentDate = new Date().toISOString().split('T')[0];
-      
-      // Save to Service (Backend Mock)
-      this.templeService.addDonation({
-        id: Date.now().toString(),
-        donorName: this.donorName,
-        gothram: this.gothram,
-        category: this.category,
-        amount: this.amount,
-        date: this.currentDate,
-        transactionId: this.transactionId,
-        pan: this.pan
-      });
+    // Generate a temporary ID
+    const tempTxnId = (this.paymentMode === 'online' ? 'TXN' : 'OFF') + Math.floor(Math.random() * 10000000).toString();
+    this.currentDate = new Date().toISOString().split('T')[0];
 
-      this.step.set('success');
-    }, 2000);
+    // Call Edge Function to verify (simulate server logic)
+    const verification = await this.templeService.verifyPayment(tempTxnId, this.amount);
+    
+    if (verification.success) {
+       this.transactionId = tempTxnId;
+       
+       // Save to Service (Backend Mock)
+       this.templeService.addDonation({
+         id: Date.now().toString(),
+         donorName: this.donorName,
+         gothram: this.gothram,
+         category: this.category,
+         amount: this.amount,
+         date: this.currentDate,
+         transactionId: this.transactionId,
+         pan: this.pan
+       });
+
+       this.step.set('success');
+    } else {
+       alert('Verification Failed: ' + verification.message);
+       this.step.set('form');
+    }
   }
 
   printReceipt() {

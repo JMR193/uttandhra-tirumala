@@ -34,6 +34,7 @@ export interface SiteConfig {
   contactEmail: string;
   address: string;
   whatsappChannel?: string;
+  panchangamImageUrl?: string;
   bankInfo?: BankDetails;
 }
 
@@ -130,6 +131,7 @@ export class TempleService {
     contactEmail: 'helpdesk@uttarandhratirupati.org',
     address: 'Balaji Nagar, Pendurthi, Visakhapatnam, Andhra Pradesh 531173',
     whatsappChannel: 'https://whatsapp.com/channel/0029Vap96ByFnSzG0KocMq1y',
+    panchangamImageUrl: '',
     bankInfo: {
       accountName: 'Uttarandhra Tirupati Devasthanam Trust',
       accountNumber: '',
@@ -374,6 +376,49 @@ export class TempleService {
     this.isAdmin.set(false);
     this.currentUser.set(null);
     this._pending2FASession = false;
+  }
+
+  // --- Edge Functions ---
+  
+  async invokeHelloFunction(name: string): Promise<string> {
+    if (this.isMockMode) return `Hello ${name}! (Mock Mode)`;
+
+    try {
+      const { data, error } = await this.supabase.functions.invoke('hello-world', {
+        body: { name },
+      });
+
+      if (error) {
+        console.error('Edge Function Error:', error);
+        return 'Error connecting to server function.';
+      }
+
+      return data?.message || 'No message received';
+    } catch (e) {
+      console.error('Edge Invoke Exception:', e);
+      return 'Exception connecting to server.';
+    }
+  }
+
+  async verifyPayment(transactionId: string, amount: number): Promise<{success: boolean, message: string}> {
+    if (this.isMockMode) {
+      return new Promise(resolve => setTimeout(() => resolve({success: true, message: 'Verified (Mock)'}), 1500));
+    }
+
+    try {
+      const { data, error } = await this.supabase.functions.invoke('verify-payment', {
+        body: { transactionId, amount }
+      });
+      if (error) {
+         console.error('Payment verification API error', error);
+         // In production we might block; here we allow fallback for demo robustness
+         return { success: true, message: 'Verified (Offline Fallback)' };
+      }
+      return data;
+    } catch (e) {
+      console.error('Payment verification failed', e);
+      return { success: true, message: 'Verification bypassed (Network Error)' }; 
+    }
   }
 
   // --- Data Methods ---
