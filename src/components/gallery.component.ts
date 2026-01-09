@@ -1,3 +1,4 @@
+
 import { Component, inject } from '@angular/core';
 import { TempleService } from '../services/temple.service';
 import { FormsModule } from '@angular/forms';
@@ -83,8 +84,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
                     }
                  </div>
               } @else {
-                 <!-- Image Rendering -->
-                 <img [src]="item.url" [alt]="item.caption" class="w-full object-cover hover:opacity-90 transition-opacity">
+                 <!-- Image Rendering with lazy loading optimization -->
+                 <img [src]="item.url" [alt]="item.caption" loading="lazy" class="w-full object-cover hover:opacity-90 transition-opacity">
               }
 
               <div class="p-4 flex justify-between items-center">

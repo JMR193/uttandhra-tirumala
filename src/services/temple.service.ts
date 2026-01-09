@@ -1,5 +1,6 @@
+
 import { Injectable, signal, computed } from '@angular/core';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 import { environment } from '../environments/environment';
 
 export interface AudioItem {
@@ -15,6 +16,15 @@ export const AUDIO_TRACKS = (lang: string): AudioItem[] => [
   { id: '2', title: lang === 'te' ? 'గోవింద నామాలు' : 'Govinda Namalu', duration: '10:45', category: 'Song', src: 'https://www.tirumala.org/OtherSankeertans/00%20GOVINDA%20NAMALU/00%20GOVINDA%20NAMALU.mp3' },
 ];
 
+export interface BankDetails {
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+  ifsc: string;
+  branch: string;
+  qrCodeUrl: string;
+}
+
 export interface SiteConfig {
   templeName: string;
   subTitle: string;
@@ -22,6 +32,9 @@ export interface SiteConfig {
   liveLink: string;
   contactPhone: string;
   contactEmail: string;
+  address: string;
+  whatsappChannel?: string;
+  bankInfo?: BankDetails;
 }
 
 export interface NewsItem {
@@ -92,22 +105,39 @@ export interface Festival {
 })
 export class TempleService {
   private supabase: SupabaseClient;
+  private realtimeChannel: RealtimeChannel | null = null;
   
+  // Realtime Status for UI
+  realtimeStatus = signal<'CONNECTING' | 'CONNECTED' | 'DISCONNECTED' | 'ERROR'>('CONNECTING');
+
   // Admin State
   isAdmin = signal<boolean>(false);
   currentUser = signal<any>(null);
   
   // 2FA Mock State
   private _pending2FASession = false;
+  
+  // Check if we are using the placeholder config
+  private isMockMode = environment.supabaseUrl.includes('placeholder');
 
   // Global Site Configuration
   siteConfig = signal<SiteConfig>({
     templeName: 'Uttarandhra Tirupati',
     subTitle: 'Shri Venkateswara Swamy Temple, Pendurthi',
-    logoUrl: 'https://picsum.photos/id/1047/100/100',
+    logoUrl: 'https://opwncdejpaeltylplvhk.supabase.co/storage/v1/object/public/images/logo/cb3d423f-ec99-48a4-b070-adf5c21ddd76.png',
     liveLink: 'https://www.youtube.com/@ramanujampendurthi1012',
-    contactPhone: '+919999999999',
-    contactEmail: 'helpdesk@uttarandhratirupati.org'
+    contactPhone: '+91 99999 99999',
+    contactEmail: 'helpdesk@uttarandhratirupati.org',
+    address: 'Balaji Nagar, Pendurthi, Visakhapatnam, Andhra Pradesh 531173',
+    whatsappChannel: 'https://whatsapp.com/channel/0029Vap96ByFnSzG0KocMq1y',
+    bankInfo: {
+      accountName: 'Uttarandhra Tirupati Devasthanam Trust',
+      accountNumber: '',
+      bankName: '',
+      ifsc: '',
+      branch: '',
+      qrCodeUrl: ''
+    }
   });
 
   // Content State (Initialized with Mock Data as Fallback)
@@ -191,32 +221,89 @@ export class TempleService {
   dailyPanchangam = computed(() => this.calculatePanchangam());
 
   constructor() {
-    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
-    this.initAuth();
-    this.refreshData();
+    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey, {
+      realtime: {
+        params: {
+          eventsPerSecond: 10,
+        },
+      },
+    });
+    
+    if (!this.isMockMode) {
+      this.initAuth();
+      this.refreshData();
+      this.setupRealtimeSubscriptions();
+    } else {
+      console.warn('Backend not configured. Running in Mock Mode.');
+      this.realtimeStatus.set('DISCONNECTED');
+    }
   }
 
   private async initAuth() {
-    const { data } = await this.supabase.auth.getSession();
-    if (data.session) {
-      this.currentUser.set(data.session.user);
-      this.isAdmin.set(true);
-    }
-
-    this.supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        this.currentUser.set(session.user);
+    try {
+      const { data } = await this.supabase.auth.getSession();
+      if (data.session) {
+        this.currentUser.set(data.session.user);
         this.isAdmin.set(true);
-      } else {
-        this.currentUser.set(null);
-        this.isAdmin.set(false);
-        this._pending2FASession = false;
       }
-    });
+
+      this.supabase.auth.onAuthStateChange((_event, session) => {
+        if (session) {
+          this.currentUser.set(session.user);
+          this.isAdmin.set(true);
+        } else {
+          this.currentUser.set(null);
+          this.isAdmin.set(false);
+          this._pending2FASession = false;
+        }
+      });
+    } catch (error) {
+      console.error('Auth initialization error:', error);
+    }
+  }
+
+  // --- Realtime Subscriptions ---
+  private setupRealtimeSubscriptions() {
+    this.realtimeStatus.set('CONNECTING');
+    
+    this.realtimeChannel = this.supabase.channel('public-db-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'news' }, () => {
+        console.log('Realtime: News updated');
+        this.fetchNews();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'gallery' }, () => {
+        console.log('Realtime: Gallery updated');
+        this.fetchGallery();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'feedbacks' }, () => {
+        console.log('Realtime: Feedbacks updated');
+        this.fetchFeedbacks();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'donations' }, () => {
+        console.log('Realtime: Donations updated');
+        this.fetchDonations();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'library' }, () => {
+        console.log('Realtime: Library updated');
+        this.fetchLibrary();
+      })
+      .subscribe((status) => {
+        console.log('Realtime connection status:', status);
+        if (status === 'SUBSCRIBED') {
+          this.realtimeStatus.set('CONNECTED');
+        } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+          this.realtimeStatus.set('DISCONNECTED');
+        } else {
+          this.realtimeStatus.set('ERROR');
+        }
+      });
   }
 
   async refreshData() {
-    await Promise.all([
+    if (this.isMockMode) return;
+    
+    // Execute fetches in parallel for performance
+    await Promise.allSettled([
       this.fetchNews(),
       this.fetchGallery(),
       this.fetchLibrary(),
@@ -228,7 +315,16 @@ export class TempleService {
   // --- Auth Methods (With 2FA Simulation) ---
   
   async login(email: string, password: string): Promise<{ error: any; requires2FA?: boolean }> {
-    // 1. First step: Validate credentials via Supabase
+    if (this.isMockMode) {
+      // Mock Login credentials
+      if (email === 'admin@uttarandhra.org' && password === 'admin') {
+         this.isAdmin.set(false);
+         this._pending2FASession = true;
+         return { error: null, requires2FA: true };
+      }
+      return { error: { message: 'Mock Mode: Use admin@uttarandhra.org / admin' } };
+    }
+
     const { data, error } = await this.supabase.auth.signInWithPassword({
       email,
       password,
@@ -238,14 +334,7 @@ export class TempleService {
       return { error };
     }
 
-    // 2. Credentials Valid. Now Simulate 2FA Requirement.
-    // We immediately sign out internally to prevent full access until 2FA is verified in the UI logic,
-    // OR we act as a "pending" state.
-    // For this applet, we'll keep the session but hold the isAdmin flag locally or use a temp flag.
-    // To implement strict 2FA properly requires backend support. 
-    // Here we assume "isAdmin" is only set to true after the verify step in the frontend component.
-    
-    // Temporarily set admin to false even though session exists, waiting for OTP
+    // Credentials Valid. Now Simulate 2FA Requirement.
     this.isAdmin.set(false); 
     this._pending2FASession = true;
 
@@ -255,12 +344,19 @@ export class TempleService {
   async verifyTwoFactor(otp: string): Promise<boolean> {
     if (!this._pending2FASession) return false;
 
-    // Simulate OTP verification (In real world, verify against backend)
-    // Hardcoded check for demo purposes or accept any 6 digit code
+    // Simulate OTP verification
+    if (this.isMockMode) {
+      if (otp === '123456') {
+        this._pending2FASession = false;
+        this.isAdmin.set(true);
+        this.currentUser.set({ email: 'admin@uttarandhra.org' });
+        return true;
+      }
+      return false;
+    }
+
     if (otp.length === 6 && /^\d+$/.test(otp)) {
       this._pending2FASession = false;
-      
-      // Now actually enable admin access based on the cached session
       const { data } = await this.supabase.auth.getSession();
       if (data.session) {
         this.isAdmin.set(true);
@@ -272,7 +368,9 @@ export class TempleService {
   }
 
   async logout() {
-    await this.supabase.auth.signOut();
+    if (!this.isMockMode) {
+       await this.supabase.auth.signOut();
+    }
     this.isAdmin.set(false);
     this.currentUser.set(null);
     this._pending2FASession = false;
@@ -281,14 +379,27 @@ export class TempleService {
   // --- Data Methods ---
 
   async fetchNews() {
-    const { data, error } = await this.supabase.from('news').select('*').order('date', { ascending: false });
-    if (!error && data && data.length > 0) {
-      this.news.set(data);
+    try {
+      const { data, error } = await this.supabase.from('news').select('*').order('date', { ascending: false });
+      if (!error && data) {
+        // Map DB snake_case to Frontend camelCase
+        const mappedNews: NewsItem[] = data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          date: item.date,
+          content: item.content,
+          attachmentUrl: item.attachment_url // Handle snake_case from DB
+        }));
+        this.news.set(mappedNews);
+      }
+    } catch (e) {
+      console.error('Error fetching news:', e);
     }
   }
 
   async addNews(title: string, content: string, attachmentUrl: string = '') {
-    const newItem = {
+    const newItem: NewsItem = {
+      id: Date.now(),
       title,
       content,
       date: new Date().toISOString().split('T')[0],
@@ -296,45 +407,78 @@ export class TempleService {
     };
     
     // Optimistic Update
-    this.news.update(items => [{ ...newItem, id: Date.now() }, ...items]);
+    this.news.update(items => [newItem, ...items]);
     
-    // Supabase Insert
-    const { error } = await this.supabase.from('news').insert([newItem]);
-    if (error) console.error('Error adding news:', error);
-    else this.fetchNews();
+    if (this.isMockMode) return;
+
+    // DB Object (snake_case)
+    const dbItem = {
+      title,
+      content,
+      date: newItem.date,
+      attachment_url: attachmentUrl
+    };
+
+    const { error } = await this.supabase.from('news').insert([dbItem]);
+    if (error) {
+        console.error('Error adding news:', JSON.stringify(error));
+        // Rollback optimistic update on error
+        this.fetchNews(); 
+    }
   }
 
   async deleteNews(id: number) {
+    const item = this.news().find(i => i.id === id);
+    if (item && item.attachmentUrl) {
+       await this.deleteFileFromUrl(item.attachmentUrl, 'gallery');
+    }
+
+    // Optimistic UI update
     this.news.update(items => items.filter(i => i.id !== id));
-    await this.supabase.from('news').delete().eq('id', id);
+    
+    if (this.isMockMode) return;
+    
+    const { error } = await this.supabase.from('news').delete().eq('id', id);
+    if (error) console.error('Error deleting news:', error);
   }
 
   async fetchGallery() {
-    const { data, error } = await this.supabase.from('gallery').select('*').order('id', { ascending: false });
-    if (!error && data && data.length > 0) {
-      this.gallery.set(data);
-    }
+    try {
+      const { data, error } = await this.supabase.from('gallery').select('*').order('id', { ascending: false });
+      if (!error && data) {
+        this.gallery.set(data);
+      }
+    } catch (e) { console.error('Error fetching gallery:', e); }
   }
 
   async addMediaItem(url: string, caption: string, type: 'image' | 'video') {
     const newItem = { url, caption, type };
     this.gallery.update(items => [{ ...newItem, id: Math.random() }, ...items]);
     
+    if (this.isMockMode) return;
+
     const { error } = await this.supabase.from('gallery').insert([newItem]);
     if (error) console.error('Error adding gallery item:', error);
-    else this.fetchGallery();
   }
 
   async deletePhoto(id: number) {
+    const item = this.gallery().find(i => i.id === id);
+    if (item && item.url) {
+       await this.deleteFileFromUrl(item.url, 'gallery');
+    }
+
     this.gallery.update(items => items.filter(i => i.id !== id));
+    if (this.isMockMode) return;
     await this.supabase.from('gallery').delete().eq('id', id);
   }
 
   async fetchFeedbacks() {
-    const { data, error } = await this.supabase.from('feedbacks').select('*').order('date', { ascending: false });
-    if (!error && data && data.length > 0) {
-      this.feedbacks.set(data);
-    }
+    try {
+      const { data, error } = await this.supabase.from('feedbacks').select('*').order('date', { ascending: false });
+      if (!error && data) {
+        this.feedbacks.set(data);
+      }
+    } catch (e) { console.error('Error fetching feedbacks', e); }
   }
 
   async addFeedback(name: string, message: string) {
@@ -344,14 +488,17 @@ export class TempleService {
       date: new Date().toISOString().split('T')[0]
     };
     this.feedbacks.update(items => [{...newItem, id: Date.now()}, ...items]);
+    if (this.isMockMode) return;
     await this.supabase.from('feedbacks').insert([newItem]);
   }
 
   async fetchDonations() {
-    const { data, error } = await this.supabase.from('donations').select('*').order('date', { ascending: false });
-    if (!error && data && data.length > 0) {
-      this.donations.set(data);
-    }
+    try {
+      const { data, error } = await this.supabase.from('donations').select('*').order('date', { ascending: false });
+      if (!error && data) {
+        this.donations.set(data);
+      }
+    } catch (e) { console.error('Error fetching donations', e); }
   }
 
   async addDonation(donation: Donation) {
@@ -366,44 +513,102 @@ export class TempleService {
     };
     
     this.donations.update(items => [donation, ...items]);
+    if (this.isMockMode) return;
     await this.supabase.from('donations').insert([dbItem]);
   }
 
   async fetchLibrary() {
-    const { data, error } = await this.supabase.from('library').select('*').order('id', { ascending: false });
-    if (!error && data && data.length > 0) {
-      this.library.set(data);
-    }
+    try {
+      const { data, error } = await this.supabase.from('library').select('*').order('id', { ascending: false });
+      if (!error && data) {
+        this.library.set(data);
+      }
+    } catch (e) { console.error('Error fetching library', e); }
   }
 
   async addLibraryItem(item: Omit<LibraryItem, 'id'>) {
     this.library.update(items => [{ ...item, id: Date.now() }, ...items]);
+    if (this.isMockMode) return;
     await this.supabase.from('library').insert([item]);
-    this.fetchLibrary();
   }
 
   async deleteLibraryItem(id: number | string) {
+    const item = this.library().find(i => i.id === id);
+    if (item && item.url) {
+        // Determine bucket based on type. "e books" has a space.
+        const bucket = item.type === 'ebook' ? 'e books' : 'gallery'; 
+        await this.deleteFileFromUrl(item.url, bucket);
+    }
+
     this.library.update(items => items.filter(i => i.id !== id));
+    if (this.isMockMode) return;
     await this.supabase.from('library').delete().eq('id', id);
   }
 
   // --- Storage Methods ---
-  async uploadFile(file: File): Promise<string | null> {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
-    const filePath = `${fileName}`;
-
-    const { error: uploadError } = await this.supabase.storage
-      .from('images')
-      .upload(filePath, file);
-
-    if (uploadError) {
-      console.error(uploadError);
-      return null;
+  
+  async uploadFile(file: File, bucket: string = 'gallery'): Promise<string | null> {
+    if (this.isMockMode) {
+      return URL.createObjectURL(file);
     }
 
-    const { data } = this.supabase.storage.from('images').getPublicUrl(filePath);
-    return data.publicUrl;
+    try {
+      const fileExt = file.name.split('.').pop();
+      // Unique filename to prevent overwrites
+      const fileName = `${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      // Docs: .upload('path', file, options)
+      const { data, error: uploadError } = await this.supabase.storage
+        .from(bucket)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Upload Error:', uploadError);
+        return null;
+      }
+
+      const { data: publicUrlData } = this.supabase.storage.from(bucket).getPublicUrl(filePath);
+      return publicUrlData.publicUrl;
+    } catch (e) {
+      console.error('Exception during upload:', e);
+      return null;
+    }
+  }
+
+  async deleteFileFromUrl(publicUrl: string, bucket: string = 'gallery') {
+     if (this.isMockMode || !publicUrl) return;
+
+     try {
+       // Extract path from Public URL
+       // URL Pattern: https://[project].supabase.co/storage/v1/object/public/[bucket]/[path]
+       
+       // Handle encoding: 'e books' in URL usually becomes 'e%20books'
+       const encodedBucket = encodeURIComponent(bucket);
+       const fragmentEncoded = `/storage/v1/object/public/${encodedBucket}/`;
+       const fragmentRaw = `/storage/v1/object/public/${bucket}/`;
+       
+       let path = '';
+       
+       if (publicUrl.includes(fragmentEncoded)) {
+         path = publicUrl.split(fragmentEncoded)[1];
+       } else if (publicUrl.includes(fragmentRaw)) {
+         path = publicUrl.split(fragmentRaw)[1];
+       }
+
+       if (path) {
+           // Storage remove expects the path as it was saved (decoded)
+           const decodedPath = decodeURIComponent(path);
+           // Docs: .remove(['file1', 'file2'])
+           const { error } = await this.supabase.storage.from(bucket).remove([decodedPath]);
+           if (error) console.error('Delete File Error:', error);
+       }
+     } catch (e) {
+       console.error('Exception during file delete:', e);
+     }
   }
 
   updateFlashNews(text: string) {

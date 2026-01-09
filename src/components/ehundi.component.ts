@@ -1,3 +1,4 @@
+
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -12,7 +13,7 @@ import { TempleService } from '../services/temple.service';
       <div class="container mx-auto px-4">
         
         <!-- Main Card -->
-        <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden print:shadow-none print:max-w-full">
+        <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden print:shadow-none print:max-w-full">
           
           <div class="bg-red-900 text-white p-6 text-center print:hidden">
             <h2 class="text-3xl font-serif font-bold">Srivari E-Hundi</h2>
@@ -20,7 +21,64 @@ import { TempleService } from '../services/temple.service';
           </div>
 
           <div class="p-8">
+            <!-- Payment Method Selection -->
             @if (step() === 'form') {
+              <div class="flex justify-center gap-4 mb-8">
+                 <button (click)="paymentMode = 'online'" [class]="paymentMode === 'online' ? 'bg-amber-600 text-white shadow-md' : 'bg-stone-100 text-stone-600'" class="px-6 py-3 rounded-lg font-bold transition-all border border-transparent hover:border-amber-300">
+                    Online Payment Gateway
+                 </button>
+                 <button (click)="paymentMode = 'bank'" [class]="paymentMode === 'bank' ? 'bg-amber-600 text-white shadow-md' : 'bg-stone-100 text-stone-600'" class="px-6 py-3 rounded-lg font-bold transition-all border border-transparent hover:border-amber-300">
+                    Direct Bank Transfer / QR
+                 </button>
+              </div>
+
+              <!-- Bank Transfer Info -->
+              @if (paymentMode === 'bank') {
+                 <div class="bg-stone-50 p-6 rounded-xl border border-stone-200 mb-8 animate-fade-in">
+                    <h3 class="text-xl font-bold text-red-900 mb-4 border-b border-stone-300 pb-2">Direct Temple Account</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Bank Text Details -->
+                        <div class="space-y-3 text-sm">
+                           @if (templeService.siteConfig().bankInfo?.accountNumber) {
+                             <div class="flex flex-col">
+                                <span class="text-stone-500 font-semibold">Account Name</span>
+                                <span class="text-stone-800 font-bold text-lg">{{ templeService.siteConfig().bankInfo?.accountName }}</span>
+                             </div>
+                             <div class="flex flex-col">
+                                <span class="text-stone-500 font-semibold">Account Number</span>
+                                <span class="text-stone-800 font-mono font-bold text-lg select-all">{{ templeService.siteConfig().bankInfo?.accountNumber }}</span>
+                             </div>
+                             <div class="flex flex-col">
+                                <span class="text-stone-500 font-semibold">Bank & Branch</span>
+                                <span class="text-stone-800">{{ templeService.siteConfig().bankInfo?.bankName }}, {{ templeService.siteConfig().bankInfo?.branch }}</span>
+                             </div>
+                             <div class="flex flex-col">
+                                <span class="text-stone-500 font-semibold">IFSC Code</span>
+                                <span class="text-stone-800 font-mono font-bold select-all">{{ templeService.siteConfig().bankInfo?.ifsc }}</span>
+                             </div>
+                           } @else {
+                             <p class="text-stone-500 italic">Bank details are currently being updated. Please use the Online Gateway.</p>
+                           }
+                        </div>
+
+                        <!-- QR Code -->
+                        <div class="flex flex-col items-center justify-center border-l border-stone-200 pl-4">
+                           @if (templeService.siteConfig().bankInfo?.qrCodeUrl) {
+                              <img [src]="templeService.siteConfig().bankInfo?.qrCodeUrl" class="w-48 h-48 object-contain border border-stone-300 p-2 bg-white rounded-lg shadow-sm">
+                              <p class="text-xs text-stone-500 mt-2 font-bold uppercase tracking-wider">Scan to Pay via UPI</p>
+                           } @else {
+                              <div class="w-48 h-48 bg-stone-200 rounded flex items-center justify-center text-stone-400 text-xs">No QR Code Available</div>
+                           }
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-amber-100 rounded text-amber-900 text-sm">
+                       <strong>Note:</strong> After making a direct transfer, please contact the temple office with your transaction ID to receive a receipt.
+                    </div>
+                 </div>
+              }
+
               <form (submit)="processPayment($event)">
                 <div class="mb-6">
                   <label class="block text-stone-700 font-bold mb-2">Contribution Category</label>
@@ -66,16 +124,22 @@ import { TempleService } from '../services/temple.service';
                   <input type="number" [(ngModel)]="amount" name="amount" required min="1" class="w-full p-3 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none text-xl font-bold text-stone-800">
                 </div>
 
-                <button type="submit" class="w-full bg-gradient-to-r from-amber-600 to-amber-700 text-white font-bold py-4 rounded-xl shadow-lg hover:from-amber-700 hover:to-amber-800 transform hover:-translate-y-1 transition-all">
-                  Proceed to Pay ₹{{ amount }}
+                <button *ngIf="paymentMode === 'online'" type="submit" class="w-full bg-gradient-to-r from-amber-600 to-amber-700 text-white font-bold py-4 rounded-xl shadow-lg hover:from-amber-700 hover:to-amber-800 transform hover:-translate-y-1 transition-all">
+                  Proceed to Payment Gateway ₹{{ amount }}
                 </button>
-                <p class="text-center text-xs text-stone-500 mt-4">Secure Payment Gateway by Bank of Temple Trust</p>
+                <button *ngIf="paymentMode === 'bank'" type="button" (click)="recordOfflineDonation()" class="w-full bg-stone-800 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-stone-900 transform hover:-translate-y-1 transition-all">
+                  I have made the transfer - Record Donation
+                </button>
+                
+                <p class="text-center text-xs text-stone-500 mt-4">
+                   {{ paymentMode === 'online' ? 'Secure Payment Gateway by Bank of Temple Trust' : 'Please ensure transfer is complete before recording' }}
+                </p>
               </form>
             } @else if (step() === 'processing') {
               <div class="flex flex-col items-center justify-center py-12">
                  <div class="w-16 h-16 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin mb-4"></div>
-                 <p class="text-xl font-bold text-stone-700">Processing Payment...</p>
-                 <p class="text-sm text-stone-500">Connecting to Payment Gateway...</p>
+                 <p class="text-xl font-bold text-stone-700">Processing...</p>
+                 <p class="text-sm text-stone-500">Verifying details...</p>
               </div>
             } @else if (step() === 'success') {
               <!-- Receipt View -->
@@ -100,6 +164,7 @@ import { TempleService } from '../services/temple.service';
                     <span class="text-stone-500">Gothram:</span> <span class="font-bold">{{ gothram || '-' }}</span>
                     <span class="text-stone-500">Category:</span> <span class="font-bold">{{ category }}</span>
                     <span class="text-stone-500">PAN:</span> <span class="font-bold">{{ pan || '-' }}</span>
+                    <span class="text-stone-500">Mode:</span> <span class="font-bold uppercase">{{ paymentMode }}</span>
                   </div>
 
                   <div class="bg-white p-4 rounded border border-amber-200 inline-block w-full max-w-md print:max-w-full">
@@ -135,6 +200,7 @@ export class EHundiComponent {
   gothram = '';
   category = 'Hundi';
   pan = '';
+  paymentMode: 'online' | 'bank' = 'online';
   
   step = signal<'form' | 'processing' | 'success'>('form');
   transactionId = '';
@@ -142,10 +208,20 @@ export class EHundiComponent {
 
   processPayment(e: Event) {
     e.preventDefault();
+    this.initiateTransaction();
+  }
+
+  recordOfflineDonation() {
+    // Logic for offline recording could be different (e.g., set status to 'Pending')
+    // For now we simulate success but generate a different ID format
+    this.initiateTransaction();
+  }
+
+  private initiateTransaction() {
     this.step.set('processing');
     
     setTimeout(() => {
-      this.transactionId = 'TXN' + Math.floor(Math.random() * 10000000).toString();
+      this.transactionId = (this.paymentMode === 'online' ? 'TXN' : 'OFF') + Math.floor(Math.random() * 10000000).toString();
       this.currentDate = new Date().toISOString().split('T')[0];
       
       // Save to Service (Backend Mock)
@@ -175,5 +251,6 @@ export class EHundiComponent {
     this.gothram = '';
     this.pan = '';
     this.category = 'Hundi';
+    this.paymentMode = 'online';
   }
 }
