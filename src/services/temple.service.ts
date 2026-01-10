@@ -135,6 +135,7 @@ export class TempleService {
   // App Appearance State (Temple OS)
   festivalMode = signal<boolean>(false);
   timeOfDay = signal<'morning' | 'afternoon' | 'evening' | 'night'>('morning');
+  visitorCount = signal<number>(1245089);
   
   // 2FA Mock State
   private _pending2FASession = false;
@@ -229,9 +230,11 @@ export class TempleService {
       this.initAuth();
       this.refreshData();
       this.setupRealtimeSubscriptions();
+      this.initVisitorTracking();
     } else {
       console.warn('Backend not configured. Running in Mock Mode.');
       this.realtimeStatus.set('DISCONNECTED');
+      this.simulateVisitors();
     }
   }
 
@@ -252,8 +255,8 @@ export class TempleService {
       const { data, error } = await this.supabase.auth.getSession();
       
       if (error) {
-        // Log generic errors but skip noise
-        if (error.message && !error.message.includes('aborted')) {
+        // Log generic errors but skip abort/signal errors which are often harmless noise
+        if (error.message && !(error.message.includes('aborted') || error.message.includes('signal'))) {
            console.error('Auth session fetch error:', error);
         }
       }
@@ -275,7 +278,7 @@ export class TempleService {
       });
     } catch (error: any) {
       // Gracefully handle AbortError or signal issues often seen in some environments
-      if (error.name === 'AbortError' || (error.message && error.message.includes('aborted'))) {
+      if (error.name === 'AbortError' || (error.message && (error.message.includes('aborted') || error.message.includes('signal')))) {
          // Silently ignore aborts
          return; 
       }
@@ -294,6 +297,12 @@ export class TempleService {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'donations' }, () => this.fetchDonations())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'library' }, () => this.fetchLibrary())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => this.fetchTasks())
+      // Listener for Visitor Count Updates
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'site_stats' }, (payload: any) => {
+         if (payload.new && payload.new.visitor_count) {
+             this.visitorCount.set(payload.new.visitor_count);
+         }
+      })
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           this.realtimeStatus.set('CONNECTED');
@@ -303,6 +312,43 @@ export class TempleService {
           this.realtimeStatus.set('ERROR');
         }
       });
+  }
+
+  private async initVisitorTracking() {
+      try {
+          // 1. Fetch current count from 'site_stats' table (Assuming row id=1 exists)
+          const { data, error } = await this.supabase
+              .from('site_stats')
+              .select('visitor_count')
+              .eq('id', 1)
+              .single();
+          
+          if (data) {
+              const current = data.visitor_count;
+              this.visitorCount.set(current);
+              
+              // 2. Increment for this session
+              // Note: In a production app, use an RPC function for atomic increments to avoid race conditions.
+              // Here we do a simple update for demonstration.
+              const newCount = current + 1;
+              await this.supabase.from('site_stats').update({ visitor_count: newCount }).eq('id', 1);
+              this.visitorCount.set(newCount);
+          } else {
+              // Fallback if table doesn't exist or is empty
+              console.warn('Visitor stats table not found, using simulation.');
+              this.simulateVisitors();
+          }
+      } catch (e) {
+          console.error('Error in visitor tracking:', e);
+          this.simulateVisitors();
+      }
+  }
+
+  private simulateVisitors() {
+      // Increment locally to show activity
+      setInterval(() => {
+          this.visitorCount.update(c => c + Math.floor(Math.random() * 3));
+      }, 8000);
   }
 
   async refreshData() {

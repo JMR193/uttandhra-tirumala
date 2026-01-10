@@ -1,5 +1,5 @@
 
-import { Component, ChangeDetectionStrategy, inject, signal, ViewChild, ElementRef, AfterViewInit, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, ViewChild, ElementRef, AfterViewInit, effect, OnDestroy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { TempleService } from './services/temple.service';
 
@@ -143,16 +143,16 @@ import { TempleService } from './services/temple.service';
              <p class="flex items-center gap-2 bg-stone-800 px-3 py-1 rounded-full border border-stone-700 shadow-inner">
                 <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                 <span class="text-stone-400 uppercase text-[10px] tracking-widest">Live Visitors:</span>
-                <span class="text-amber-400 font-mono font-bold">{{ visitorCount }}</span>
+                <span class="text-amber-400 font-mono font-bold">{{ templeService.visitorCount() }}</span>
              </p>
-             <p class="text-xs text-stone-600 font-serif italic opacity-70">Made with love by JMR</p>
+             <p class="text-xl md:text-2xl font-serif font-bold text-amber-600 mt-2 drop-shadow-sm">Made with love by J Manmadha Rao</p>
           </div>
         </div>
       </footer>
     </div>
   `
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements AfterViewInit, OnDestroy {
   templeService = inject(TempleService);
   
   @ViewChild('bgMusic') bgMusicRef!: ElementRef<HTMLAudioElement>;
@@ -162,7 +162,9 @@ export class AppComponent implements AfterViewInit {
   
   deferredPrompt: any = null;
   showIosHint = false;
-  visitorCount = 1245089 + Math.floor(Math.random() * 50);
+
+  // Particle Animation ID for cleanup
+  private particleFrameId: number | null = null;
 
   constructor() {
     effect(() => {
@@ -189,6 +191,12 @@ export class AppComponent implements AfterViewInit {
 
     // Initialize Divine Particles
     this.initParticles();
+  }
+
+  ngOnDestroy() {
+     if (this.particleFrameId) {
+        cancelAnimationFrame(this.particleFrameId);
+     }
   }
 
   installPwa() {
@@ -286,7 +294,7 @@ export class AppComponent implements AfterViewInit {
         particles[i].update();
         particles[i].draw();
       }
-      requestAnimationFrame(animate);
+      this.particleFrameId = requestAnimationFrame(animate);
     };
 
     animate();
