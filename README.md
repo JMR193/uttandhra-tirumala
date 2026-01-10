@@ -5,12 +5,13 @@ An advanced, full-stack Temple Management System built for **Shri Venkateswara S
 
 ## 🚀 Technology Stack
 
-- **Frontend Framework**: Angular v20+ (Standalone Components, Signals, Zoneless Change Detection).
+- **Frontend Framework**: Angular v18+ (Standalone Components, Signals, Zoneless Change Detection).
 - **Styling**: Tailwind CSS (Utility-first CSS).
 - **Backend / Database**: Supabase (PostgreSQL, Auth, Storage, Realtime, Edge Functions).
 - **Visualization**: D3.js (Admin Dashboard Charts).
 - **Icons**: Heroicons (SVG).
 - **Routing**: Angular Router (Hash Location Strategy).
+- **Hosting**: Firebase Hosting.
 
 ## ✨ Features
 
@@ -48,6 +49,7 @@ An advanced, full-stack Temple Management System built for **Shri Venkateswara S
 ### Prerequisites
 *   Node.js (v18 or higher)
 *   npm or yarn
+*   Firebase CLI (`npm install -g firebase-tools`)
 
 ### Installation
 1.  **Clone the repository**:
@@ -72,6 +74,28 @@ An advanced, full-stack Temple Management System built for **Shri Venkateswara S
     npm start
     ```
     Navigate to `http://localhost:4200/`.
+
+### Deployment to Firebase
+
+1.  **Login to Firebase**:
+    ```bash
+    firebase login
+    ```
+
+2.  **Initialize Project** (if not already done):
+    ```bash
+    firebase init
+    ```
+    - Select **Hosting**.
+    - Select your Firebase project.
+    - Public directory: `dist/uttarandhra-tirupati`
+    - Configure as single-page app: **Yes**
+
+3.  **Deploy**:
+    ```bash
+    npm run deploy
+    ```
+    This command builds the Angular app and deploys it to Firebase Hosting.
 
 ## 📂 Project Structure
 

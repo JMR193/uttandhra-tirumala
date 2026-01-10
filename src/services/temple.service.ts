@@ -211,7 +211,13 @@ export class TempleService {
   constructor() {
     this.calculateTimeOfDay();
     
+    // Config for Supabase Client with improved Auth options
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey, {
+      auth: {
+        detectSessionInUrl: false, // Prevents conflicts with Angular HashLocationStrategy
+        persistSession: true,
+        autoRefreshToken: true,
+      },
       realtime: {
         params: {
           eventsPerSecond: 10,
@@ -243,8 +249,16 @@ export class TempleService {
 
   private async initAuth() {
     try {
-      const { data } = await this.supabase.auth.getSession();
-      if (data.session) {
+      const { data, error } = await this.supabase.auth.getSession();
+      
+      if (error) {
+        // Log generic errors but skip noise
+        if (error.message && !error.message.includes('aborted')) {
+           console.error('Auth session fetch error:', error);
+        }
+      }
+
+      if (data && data.session) {
         this.currentUser.set(data.session.user);
         this.isAdmin.set(true);
       }
@@ -259,7 +273,12 @@ export class TempleService {
           this._pending2FASession = false;
         }
       });
-    } catch (error) {
+    } catch (error: any) {
+      // Gracefully handle AbortError or signal issues often seen in some environments
+      if (error.name === 'AbortError' || (error.message && error.message.includes('aborted'))) {
+         // Silently ignore aborts
+         return; 
+      }
       console.error('Auth initialization error:', error);
     }
   }
