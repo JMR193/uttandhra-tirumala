@@ -28,12 +28,12 @@ import * as d3 from 'd3';
               <!-- Step 1: Email & Password -->
               <div class="mb-4">
                 <label class="block text-red-900 text-sm font-bold mb-2">Email Address</label>
-                <input type="email" [(ngModel)]="email" class="w-full px-4 py-3 border border-stone-300 rounded-lg focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-orange-50" placeholder="admin@example.com">
+                <input type="email" [(ngModel)]="email" class="w-full px-4 py-3 border border-stone-300 rounded-lg focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white text-stone-800" placeholder="admin@example.com">
               </div>
               
               <div class="mb-6">
                 <label class="block text-red-900 text-sm font-bold mb-2">Password</label>
-                <input type="password" [(ngModel)]="password" class="w-full px-4 py-3 border border-stone-300 rounded-lg focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-orange-50" placeholder="••••••">
+                <input type="password" [(ngModel)]="password" class="w-full px-4 py-3 border border-stone-300 rounded-lg focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white text-stone-800" placeholder="••••••">
               </div>
 
               <button (click)="handleLogin()" [disabled]="isLoading" class="w-full bg-gradient-to-r from-red-800 to-red-900 text-white font-bold py-3 rounded-lg hover:from-red-700 hover:to-red-800 transition-all shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 transform hover:-translate-y-0.5">
@@ -50,7 +50,7 @@ import * as d3 from 'd3';
                  </div>
                  
                  <label class="block text-red-900 text-sm font-bold mb-2">Authentication Code</label>
-                 <input type="text" [(ngModel)]="otp" maxlength="6" class="w-full px-4 py-3 border border-stone-300 rounded-lg text-center text-2xl tracking-widest font-mono focus:outline-none focus:border-amber-500 bg-orange-50" placeholder="000000">
+                 <input type="text" [(ngModel)]="otp" maxlength="6" class="w-full px-4 py-3 border border-stone-300 rounded-lg text-center text-2xl tracking-widest font-mono focus:outline-none focus:border-amber-500 bg-white text-stone-800" placeholder="000000">
               </div>
 
               <div class="flex flex-col gap-3">
@@ -188,7 +188,7 @@ import * as d3 from 'd3';
               <div class="bg-white p-6 rounded-xl shadow-lg border border-amber-100">
                  <h3 class="text-lg font-bold text-red-900 mb-4">Scrolling Flash News</h3>
                  <div class="flex gap-4">
-                   <input [(ngModel)]="flashNewsInput" class="flex-grow p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" [placeholder]="templeService.flashNews()">
+                   <input [(ngModel)]="flashNewsInput" class="flex-grow p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800" [placeholder]="templeService.flashNews()">
                    <button (click)="updateFlash()" class="bg-red-800 text-white px-6 py-2 rounded-lg hover:bg-red-900 font-bold shadow-md transition-all">Update</button>
                  </div>
                  <p class="text-xs text-stone-500 mt-2 italic">This text scrolls across the top of the homepage in marquee style.</p>
@@ -213,19 +213,19 @@ import * as d3 from 'd3';
                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                           <div>
                             <label class="block text-stone-700 font-bold mb-1 text-sm">Task Title</label>
-                            <input [(ngModel)]="currentTask.title" name="tTitle" required class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none">
+                            <input [(ngModel)]="currentTask.title" name="tTitle" required class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                           </div>
                           <div>
                             <label class="block text-stone-700 font-bold mb-1 text-sm">Assign To</label>
-                            <input [(ngModel)]="currentTask.assignee" name="tAssignee" required class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none">
+                            <input [(ngModel)]="currentTask.assignee" name="tAssignee" required class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                           </div>
                           <div class="md:col-span-2">
                              <label class="block text-stone-700 font-bold mb-1 text-sm">Description</label>
-                             <textarea [(ngModel)]="currentTask.description" name="tDesc" class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none h-20"></textarea>
+                             <textarea [(ngModel)]="currentTask.description" name="tDesc" class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none h-20 bg-white text-stone-800"></textarea>
                           </div>
                           <div>
                              <label class="block text-stone-700 font-bold mb-1 text-sm">Priority</label>
-                             <select [(ngModel)]="currentTask.priority" name="tPriority" class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none bg-white">
+                             <select [(ngModel)]="currentTask.priority" name="tPriority" class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                                 <option value="Low">Low</option>
                                 <option value="Medium">Medium</option>
                                 <option value="High">High</option>
@@ -233,11 +233,11 @@ import * as d3 from 'd3';
                           </div>
                           <div>
                              <label class="block text-stone-700 font-bold mb-1 text-sm">Due Date</label>
-                             <input type="date" [(ngModel)]="currentTask.dueDate" name="tDue" class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none">
+                             <input type="date" [(ngModel)]="currentTask.dueDate" name="tDue" class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                           </div>
                           <div>
                              <label class="block text-stone-700 font-bold mb-1 text-sm">Status</label>
-                             <select [(ngModel)]="currentTask.status" name="tStatus" class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none bg-white">
+                             <select [(ngModel)]="currentTask.status" name="tStatus" class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                                 <option value="Pending">Pending</option>
                                 <option value="In Progress">In Progress</option>
                                 <option value="Completed">Completed</option>
@@ -385,31 +385,31 @@ import * as d3 from 'd3';
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                        <div>
                           <label class="block text-red-900 font-bold mb-2">Temple Name</label>
-                          <input [(ngModel)]="tempConfig.templeName" name="tName" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                          <input [(ngModel)]="tempConfig.templeName" name="tName" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                        </div>
                        <div>
                           <label class="block text-red-900 font-bold mb-2">Subtitle / Location</label>
-                          <input [(ngModel)]="tempConfig.subTitle" name="tSub" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                          <input [(ngModel)]="tempConfig.subTitle" name="tSub" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                        </div>
                        <div class="md:col-span-2">
                           <label class="block text-red-900 font-bold mb-2">Logo URL (Manual Override)</label>
-                          <input [(ngModel)]="tempConfig.logoUrl" name="tLogo" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-stone-50 font-mono text-sm">
+                          <input [(ngModel)]="tempConfig.logoUrl" name="tLogo" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800 font-mono text-sm">
                        </div>
                        <div>
                           <label class="block text-red-900 font-bold mb-2">Live Darshan Link (YouTube)</label>
-                          <input [(ngModel)]="tempConfig.liveLink" name="tLive" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-blue-600">
+                          <input [(ngModel)]="tempConfig.liveLink" name="tLive" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white text-blue-600">
                        </div>
                        <div>
                           <label class="block text-red-900 font-bold mb-2">Contact Phone</label>
-                          <input [(ngModel)]="tempConfig.contactPhone" name="tPhone" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                          <input [(ngModel)]="tempConfig.contactPhone" name="tPhone" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                        </div>
                        <div class="md:col-span-2">
                           <label class="block text-red-900 font-bold mb-2">WhatsApp Channel Link</label>
-                          <input [(ngModel)]="tempConfig.whatsappChannel" name="tWhatsapp" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-green-600">
+                          <input [(ngModel)]="tempConfig.whatsappChannel" name="tWhatsapp" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white text-green-600">
                        </div>
                        <div class="md:col-span-2">
                           <label class="block text-red-900 font-bold mb-2">Contact Email</label>
-                          <input [(ngModel)]="tempConfig.contactEmail" name="tEmail" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                          <input [(ngModel)]="tempConfig.contactEmail" name="tEmail" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                        </div>
                     </div>
 
@@ -419,23 +419,23 @@ import * as d3 from 'd3';
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6" *ngIf="tempConfig.bankInfo">
                             <div>
                                 <label class="block text-stone-700 font-bold mb-2">Account Name</label>
-                                <input [(ngModel)]="tempConfig.bankInfo!.accountName" name="bAccName" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                                <input [(ngModel)]="tempConfig.bankInfo!.accountName" name="bAccName" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                             </div>
                             <div>
                                 <label class="block text-stone-700 font-bold mb-2">Bank Name</label>
-                                <input [(ngModel)]="tempConfig.bankInfo!.bankName" name="bBankName" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                                <input [(ngModel)]="tempConfig.bankInfo!.bankName" name="bBankName" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                             </div>
                             <div>
                                 <label class="block text-stone-700 font-bold mb-2">Account Number</label>
-                                <input [(ngModel)]="tempConfig.bankInfo!.accountNumber" name="bAccNum" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none font-mono">
+                                <input [(ngModel)]="tempConfig.bankInfo!.accountNumber" name="bAccNum" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none font-mono bg-white text-stone-800">
                             </div>
                             <div>
                                 <label class="block text-stone-700 font-bold mb-2">IFSC Code</label>
-                                <input [(ngModel)]="tempConfig.bankInfo!.ifsc" name="bIfsc" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none font-mono uppercase">
+                                <input [(ngModel)]="tempConfig.bankInfo!.ifsc" name="bIfsc" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none font-mono uppercase bg-white text-stone-800">
                             </div>
                             <div>
                                 <label class="block text-stone-700 font-bold mb-2">Branch</label>
-                                <input [(ngModel)]="tempConfig.bankInfo!.branch" name="bBranch" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                                <input [(ngModel)]="tempConfig.bankInfo!.branch" name="bBranch" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                             </div>
                             
                             <!-- QR Upload -->
@@ -470,7 +470,7 @@ import * as d3 from 'd3';
               <!-- Filter Controls -->
               <div class="mb-6 flex items-center gap-4 bg-white p-4 rounded-lg shadow-sm border border-stone-200">
                   <label class="font-bold text-stone-700">Segregate By Category:</label>
-                  <select [(ngModel)]="donationFilter" class="p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none">
+                  <select [(ngModel)]="donationFilter" class="p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                       <option value="All">All Donations</option>
                       <option value="Hundi">Hundi</option>
                       <option value="Annadanam">Annadanam</option>
@@ -527,18 +527,57 @@ import * as d3 from 'd3';
                <div class="grid grid-cols-1 gap-8">
                  <div class="bg-white p-6 rounded-xl shadow-lg border border-amber-100">
                    <h3 class="text-lg font-bold mb-4 text-stone-800">Post New Update</h3>
+                   
                    <div class="mb-3">
                      <label class="block text-xs font-bold text-stone-500 mb-1">Headline</label>
-                     <input [(ngModel)]="newTitle" placeholder="Title" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                     <input [(ngModel)]="newTitle" placeholder="Title" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                    </div>
-                   <div class="mb-3">
-                     <label class="block text-xs font-bold text-stone-500 mb-1">Details</label>
-                     <textarea [(ngModel)]="newContent" placeholder="Content details..." class="w-full p-3 border border-stone-300 rounded-lg h-24 focus:ring-2 focus:ring-amber-500 outline-none"></textarea>
+
+                   <!-- Rich Text Editor Section -->
+                   <div class="mb-4">
+                        <label class="block text-xs font-bold text-stone-500 mb-2">Details (Rich Text)</label>
+                        
+                        <div class="border border-stone-300 rounded-lg overflow-hidden bg-white shadow-inner focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-transparent transition-all">
+                            <!-- Toolbar -->
+                            <div class="flex items-center gap-1 p-2 bg-stone-50 border-b border-stone-200 flex-wrap">
+                                <button (click)="execCommand('bold')" title="Bold" class="p-2 hover:bg-stone-200 rounded text-stone-700 font-bold transition-colors">
+                                    <span class="font-serif">B</span>
+                                </button>
+                                <button (click)="execCommand('italic')" title="Italic" class="p-2 hover:bg-stone-200 rounded text-stone-700 italic transition-colors">
+                                    <span class="font-serif">I</span>
+                                </button>
+                                <button (click)="execCommand('underline')" title="Underline" class="p-2 hover:bg-stone-200 rounded text-stone-700 underline transition-colors">
+                                    <span class="font-serif">U</span>
+                                </button>
+                                <div class="w-px h-6 bg-stone-300 mx-1"></div>
+                                <button (click)="execCommand('insertOrderedList')" title="Ordered List" class="p-2 hover:bg-stone-200 rounded text-stone-700 transition-colors font-mono">
+                                    1.
+                                </button>
+                                <button (click)="execCommand('insertUnorderedList')" title="Bullet List" class="p-2 hover:bg-stone-200 rounded text-stone-700 transition-colors font-mono">
+                                    •
+                                </button>
+                                <div class="w-px h-6 bg-stone-300 mx-1"></div>
+                                <button (click)="execCommand('justifyLeft')" title="Align Left" class="p-2 hover:bg-stone-200 rounded text-stone-700 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" /></svg>
+                                </button>
+                                <button (click)="execCommand('justifyCenter')" title="Align Center" class="p-2 hover:bg-stone-200 rounded text-stone-700 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                                </button>
+                            </div>
+                            
+                            <!-- Editable Area -->
+                            <div #newsEditor
+                                 contenteditable="true" 
+                                 (input)="updateContent($event)"
+                                 class="w-full p-4 min-h-[150px] outline-none text-stone-800 text-sm leading-relaxed overflow-y-auto">
+                            </div>
+                        </div>
                    </div>
+                   
                    <div class="mb-4">
                       <label class="block text-xs font-bold text-stone-500 mb-1">Attachment</label>
                       <div class="flex flex-col gap-2">
-                         <input type="file" (change)="handleFileSelectForNews($event)" class="text-sm text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-100 file:text-orange-700 hover:file:bg-orange-200 cursor-pointer">
+                         <input type="file" #newsFileInput (change)="handleFileSelectForNews($event)" class="text-sm text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-100 file:text-orange-700 hover:file:bg-orange-200 cursor-pointer">
                          @if (newsUploading) { <span class="text-xs text-amber-600 animate-pulse font-bold">Uploading file...</span> }
                       </div>
                    </div>
@@ -551,7 +590,10 @@ import * as d3 from 'd3';
                        <div>
                          <h4 class="font-bold text-lg text-red-900">{{ item.title }}</h4>
                          <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded">{{ item.date }}</span>
-                         <p class="text-sm text-stone-600 mt-2">{{ item.content }}</p>
+                         
+                         <!-- Render HTML content -->
+                         <div class="text-sm text-stone-600 mt-2 prose prose-sm max-w-none" [innerHTML]="item.content"></div>
+
                          @if (item.attachmentUrl) {
                             <a [href]="item.attachmentUrl" target="_blank" class="inline-flex items-center gap-1 mt-3 text-xs bg-stone-100 px-3 py-1.5 rounded-full hover:bg-stone-200 font-bold text-stone-600">
                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" /></svg>
@@ -574,11 +616,11 @@ import * as d3 from 'd3';
                <div class="bg-white p-6 rounded-xl shadow-lg border border-amber-100 mb-8">
                   <h3 class="text-lg font-bold mb-4 text-stone-800">Add New Resource</h3>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <select [(ngModel)]="libType" class="p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white">
+                    <select [(ngModel)]="libType" class="p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                       <option value="audio">Audio (MP3)</option>
                       <option value="ebook">E-Book (PDF)</option>
                     </select>
-                    <input [(ngModel)]="libTitle" placeholder="Resource Title" class="p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                    <input [(ngModel)]="libTitle" placeholder="Resource Title" class="p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                   </div>
                   
                   <div class="mb-4">
@@ -589,8 +631,8 @@ import * as d3 from 'd3';
                       </div>
                   </div>
 
-                  <input [(ngModel)]="libUrl" placeholder="File URL (https://...)" class="w-full p-3 border border-stone-300 rounded-lg mb-4 focus:ring-2 focus:ring-amber-500 outline-none">
-                  <input [(ngModel)]="libDesc" placeholder="Short Description" class="w-full p-3 border border-stone-300 rounded-lg mb-4 focus:ring-2 focus:ring-amber-500 outline-none">
+                  <input [(ngModel)]="libUrl" placeholder="File URL (https://...)" class="w-full p-3 border border-stone-300 rounded-lg mb-4 focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
+                  <input [(ngModel)]="libDesc" placeholder="Short Description" class="w-full p-3 border border-stone-300 rounded-lg mb-4 focus:ring-2 focus:ring-amber-500 outline-none bg-white text-stone-800">
                   <button (click)="handleAddLibrary()" [disabled]="libUploading" class="bg-purple-800 text-white px-6 py-2 rounded-lg font-bold hover:bg-purple-900 shadow-md disabled:opacity-50">Add to Library</button>
                </div>
 
@@ -620,57 +662,45 @@ import * as d3 from 'd3';
 })
 export class AdminComponent implements AfterViewInit {
   templeService = inject(TempleService);
+  
+  // ViewChild for editor
+  @ViewChild('newsEditor') newsEditor!: ElementRef;
 
-  // Auth State
+  // Login State
   loginStep = signal<'credentials' | '2fa'>('credentials');
   email = '';
   password = '';
   otp = '';
   isLoading = false;
   errorMsg = '';
-
-  // Navigation
-  activeTab = signal<'dashboard' | 'tasks' | 'reviews' | 'settings' | 'donations' | 'news' | 'library'>('dashboard');
-
-  // Dashboard
-  @ViewChild('barChartContainer') barChartContainer: ElementRef | undefined;
-  @ViewChild('pieChartContainer') pieChartContainer: ElementRef | undefined;
-  pieLegend = signal<{label: string, color: string}[]>([]);
-  flashNewsInput = '';
   
-  // Edge Function Testing
-  testingEdge = false;
-  edgeResponse = 'Ready to test';
+  // Dashboard State
+  activeTab = signal<'dashboard' | 'tasks' | 'reviews' | 'settings' | 'donations' | 'news' | 'library'>('dashboard');
+  
+  // Charts
+  @ViewChild('barChartContainer') barChartContainer!: ElementRef;
+  @ViewChild('pieChartContainer') pieChartContainer!: ElementRef;
+  pieLegend = signal<{label: string, color: string}[]>([]);
 
-  // Task Management State
+  // Edge Function Test
+  testingEdge = false;
+  edgeResponse = '';
+
+  // Flash News
+  flashNewsInput = '';
+
+  // Tasks
   showTaskForm = false;
   editingTask = false;
-  currentTask: Task = {
-    id: 0,
-    title: '',
-    description: '',
-    assignee: '',
-    status: 'Pending',
-    priority: 'Medium',
-    dueDate: new Date().toISOString().split('T')[0]
-  };
+  currentTask: any = this.getEmptyTask();
 
   // Settings
-  tempConfig: SiteConfig = { ...this.templeService.siteConfig() };
+  tempConfig: any = {};
   logoUploading = false;
   panchangamUploading = false;
 
   // Donations
-  private _donationFilter = signal('All');
-  get donationFilter() { return this._donationFilter(); }
-  set donationFilter(val: string) { this._donationFilter.set(val); }
-
-  filteredDonations = computed(() => {
-    const filter = this._donationFilter();
-    const all = this.templeService.donations();
-    if (filter === 'All') return all;
-    return all.filter(d => d.category === filter);
-  });
+  donationFilter = 'All';
 
   // News
   newTitle = '';
@@ -679,7 +709,7 @@ export class AdminComponent implements AfterViewInit {
   newsUploading = false;
 
   // Library
-  libType: 'audio' | 'ebook' = 'audio';
+  libType = 'audio';
   libTitle = '';
   libUrl = '';
   libDesc = '';
@@ -687,314 +717,325 @@ export class AdminComponent implements AfterViewInit {
 
   constructor() {
     effect(() => {
-      this.flashNewsInput = this.templeService.flashNews();
-    });
-
-    effect(() => {
-      const conf = this.templeService.siteConfig();
-      // Deep clone to handle nested objects safely
-      this.tempConfig = JSON.parse(JSON.stringify(conf));
-    });
-
-    effect(() => {
-      if (this.activeTab() === 'dashboard' && this.templeService.isAdmin()) {
-        setTimeout(() => this.renderCharts(), 0);
+      if (this.templeService.isAdmin()) {
+        this.initAdminData();
       }
     });
-  }
 
+    effect(() => {
+        if (this.activeTab() === 'dashboard' && this.templeService.isAdmin()) {
+            // Allow DOM to update then render charts
+            setTimeout(() => this.renderCharts(), 100); 
+        }
+    });
+  }
+  
   ngAfterViewInit() {
-    if (this.activeTab() === 'dashboard' && this.templeService.isAdmin()) {
-       this.renderCharts();
+      // Initial render if already admin and on dashboard
+      if (this.templeService.isAdmin() && this.activeTab() === 'dashboard') {
+          this.renderCharts();
+      }
+  }
+
+  initAdminData() {
+    this.tempConfig = JSON.parse(JSON.stringify(this.templeService.siteConfig()));
+    this.flashNewsInput = this.templeService.flashNews();
+  }
+
+  // ... Editor Methods
+  execCommand(command: string) {
+    document.execCommand(command, false, '');
+    if (this.newsEditor) {
+        this.newContent = this.newsEditor.nativeElement.innerHTML;
     }
   }
 
-  // --- Auth Methods ---
+  updateContent(e: any) {
+      this.newContent = e.target.innerHTML;
+  }
+
+  // ... Login Methods
   async handleLogin() {
-    this.isLoading = true;
-    this.errorMsg = '';
-    
-    try {
-      const { error, requires2FA } = await this.templeService.login(this.email, this.password);
-      
-      if (error) {
-        this.errorMsg = error.message;
-      } else if (requires2FA) {
-        this.loginStep.set('2fa');
-      }
-    } catch (e) {
-      this.errorMsg = 'Login failed. Please try again.';
-    } finally {
+      this.isLoading = true;
+      this.errorMsg = '';
+      const res = await this.templeService.login(this.email, this.password);
       this.isLoading = false;
-    }
+      if (res.error) {
+          this.errorMsg = res.error.message;
+      } else if (res.requires2FA) {
+          this.loginStep.set('2fa');
+      }
   }
 
   async handleVerifyOtp() {
-    this.isLoading = true;
-    const isValid = await this.templeService.verifyTwoFactor(this.otp);
-    if (!isValid) {
-      this.errorMsg = 'Invalid OTP. Please check code.';
-    }
-    this.isLoading = false;
+      this.isLoading = true;
+      const valid = await this.templeService.verifyTwoFactor(this.otp);
+      this.isLoading = false;
+      if (!valid) {
+          this.errorMsg = 'Invalid Code';
+      }
   }
-
+  
   resetLogin() {
-    this.loginStep.set('credentials');
-    this.otp = '';
-    this.errorMsg = '';
-    this.password = '';
+      this.loginStep.set('credentials');
+      this.otp = '';
+      this.errorMsg = '';
   }
 
   setActiveTab(tab: any) {
-    this.activeTab.set(tab);
+      this.activeTab.set(tab);
   }
 
-  // --- Dashboard Logic ---
-  
+  // ... Dashboard Methods
   getPendingTasksCount() {
-    return this.templeService.tasks().filter(t => t.status !== 'Completed').length;
+      return this.templeService.tasks().filter(t => t.status === 'Pending').length;
   }
 
   async testEdgeFunction() {
-    this.testingEdge = true;
-    this.edgeResponse = 'Connecting...';
-    try {
-       const res = await this.templeService.invokeHelloFunction('Admin');
-       this.edgeResponse = res;
-    } catch(e) {
-       this.edgeResponse = 'Connection Failed';
-    }
-    this.testingEdge = false;
+      this.testingEdge = true;
+      this.edgeResponse = 'Calling...';
+      const res = await this.templeService.invokeHelloFunction('Admin');
+      this.edgeResponse = res;
+      this.testingEdge = false;
+  }
+  
+  updateFlash() {
+      this.templeService.updateFlashNews(this.flashNewsInput);
+      alert('Flash news updated!');
   }
 
   renderCharts() {
-    if (!this.barChartContainer || !this.pieChartContainer) return;
-    
-    const containerBar = this.barChartContainer.nativeElement;
-    const containerPie = this.pieChartContainer.nativeElement;
-    
-    d3.select(containerBar).selectAll('*').remove();
-    d3.select(containerPie).selectAll('*').remove();
-
-    const donations = this.templeService.donations();
-    if (donations.length === 0) return;
-
-    // 1. Bar Chart
-    const categoryData = Array.from(d3.rollup(donations, v => d3.sum(v, d => d.amount), d => d.category), ([category, amount]) => ({category, amount}))
-      .sort((a, b) => b.amount - a.amount);
-
-    const margin = {top: 20, right: 20, bottom: 40, left: 60};
-    const width = containerBar.clientWidth - margin.left - margin.right;
-    const height = 250 - margin.top - margin.bottom;
-
-    const svgBar = d3.select(containerBar)
-      .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
-
-    const x = d3.scaleBand()
-      .range([0, width])
-      .domain(categoryData.map(d => d.category))
-      .padding(0.2);
-
-    const y = d3.scaleLinear()
-      .range([height, 0])
-      .domain([0, d3.max(categoryData, d => d.amount) || 0]);
-
-    svgBar.append('g')
-      .attr('transform', `translate(0,${height})`)
-      .call(d3.axisBottom(x))
-      .selectAll("text")
-      .style("text-anchor", "middle");
-
-    svgBar.append('g')
-      .call(d3.axisLeft(y).ticks(5).tickFormat(d => `₹${d}`));
-
-    svgBar.selectAll("mybar")
-      .data(categoryData)
-      .join("rect")
-      .attr("x", d => x(d.category)!)
-      .attr("y", d => y(d.amount))
-      .attr("width", x.bandwidth())
-      .attr("height", d => height - y(d.amount))
-      .attr("fill", "#991b1b"); 
-
-    // 2. Pie Chart
-    const pieWidth = containerPie.clientWidth;
-    const pieHeight = 250;
-    const radius = Math.min(pieWidth, pieHeight) / 2;
-    
-    const svgPie = d3.select(containerPie)
-      .append('svg')
-      .attr('width', pieWidth)
-      .attr('height', pieHeight + 40)
-      .append('g')
-      .attr('transform', `translate(${pieWidth/2},${pieHeight/2 + 20})`);
-
-    const color = d3.scaleOrdinal()
-      .domain(categoryData.map(d => d.category))
-      .range(['#f59e0b', '#b45309', '#78350f', '#991b1b', '#ef4444']);
-
-    const pie = d3.pie<any>().value(d => d.amount);
-    const dataReady = pie(categoryData);
-    const arcGenerator = d3.arc().innerRadius(0).outerRadius(radius);
-
-    svgPie.selectAll('mySlices')
-      .data(dataReady)
-      .join('path')
-      .attr('d', arcGenerator as any)
-      .attr('fill', d => color(d.data.category) as string)
-      .attr("stroke", "white")
-      .style("stroke-width", "2px")
-      .style("opacity", 0.9);
+      if (!this.barChartContainer || !this.pieChartContainer) return;
       
-    this.pieLegend.set(categoryData.map(d => ({
-       label: d.category, 
-       color: color(d.category) as string
-    })));
+      // Clear previous
+      d3.select(this.barChartContainer.nativeElement).selectAll('*').remove();
+      d3.select(this.pieChartContainer.nativeElement).selectAll('*').remove();
+
+      this.renderBarChart();
+      this.renderPieChart();
   }
 
-  updateFlash() {
-    this.templeService.updateFlashNews(this.flashNewsInput);
+  renderBarChart() {
+      const data = this.templeService.donations();
+      // Aggregate by category
+      const counts: {[key: string]: number} = {};
+      data.forEach(d => {
+          counts[d.category] = (counts[d.category] || 0) + d.amount;
+      });
+      const chartData = Object.keys(counts).map(k => ({ category: k, value: counts[k] }));
+      
+      const margin = {top: 20, right: 20, bottom: 30, left: 60};
+      const width = this.barChartContainer.nativeElement.offsetWidth - margin.left - margin.right;
+      const height = 250 - margin.top - margin.bottom;
+
+      const svg = d3.select(this.barChartContainer.nativeElement)
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const x = d3.scaleBand()
+          .range([0, width])
+          .padding(0.1);
+      const y = d3.scaleLinear()
+          .range([height, 0]);
+
+      x.domain(chartData.map(d => d.category));
+      y.domain([0, d3.max(chartData, d => d.value) || 0]);
+
+      svg.append("g")
+          .attr("transform", `translate(0,${height})`)
+          .call(d3.axisBottom(x));
+
+      svg.append("g")
+          .call(d3.axisLeft(y));
+
+      svg.selectAll(".bar")
+          .data(chartData)
+          .enter().append("rect")
+          .attr("class", "bar")
+          .attr("x", d => x(d.category)!)
+          .attr("width", x.bandwidth())
+          .attr("y", d => y(d.value))
+          .attr("height", d => height - y(d.value))
+          .attr("fill", "#b45309"); // amber-700
   }
 
-  // --- Task Logic ---
+  renderPieChart() {
+      const data = this.templeService.donations();
+      const counts: {[key: string]: number} = {};
+      data.forEach(d => {
+          counts[d.category] = (counts[d.category] || 0) + d.amount;
+      });
+      const chartData = Object.keys(counts).map(k => ({ label: k, value: counts[k] }));
+
+      const width = 200;
+      const height = 200;
+      const radius = Math.min(width, height) / 2;
+
+      const svg = d3.select(this.pieChartContainer.nativeElement)
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", `translate(${width / 2},${height / 2})`);
+
+      const color = d3.scaleOrdinal()
+        .domain(chartData.map(d => d.label))
+        .range(d3.schemeSet2);
+
+      const pie = d3.pie<any>().value(d => d.value);
+      const data_ready = pie(chartData);
+
+      const arc = d3.arc()
+        .innerRadius(0)
+        .outerRadius(radius);
+
+      svg.selectAll('slices')
+        .data(data_ready)
+        .enter()
+        .append('path')
+        .attr('d', arc as any)
+        .attr('fill', d => color(d.data.label) as string)
+        .attr("stroke", "white")
+        .style("stroke-width", "2px")
+        .style("opacity", 0.7);
+        
+      this.pieLegend.set(chartData.map(d => ({ label: d.label, color: color(d.label) as string })));
+  }
+
+  // ... Task Methods
+  getEmptyTask() {
+      return { title: '', description: '', assignee: '', priority: 'Medium', dueDate: '', status: 'Pending' };
+  }
+  
   openTaskModal() {
-    this.editingTask = false;
-    this.currentTask = { id: 0, title: '', description: '', assignee: '', status: 'Pending', priority: 'Medium', dueDate: new Date().toISOString().split('T')[0] };
-    this.showTaskForm = true;
+      this.currentTask = this.getEmptyTask();
+      this.editingTask = false;
+      this.showTaskForm = true;
   }
   
-  editTask(task: Task) {
-    this.editingTask = true;
-    this.currentTask = { ...task };
-    this.showTaskForm = true;
-  }
-
   closeTaskForm() {
-    this.showTaskForm = false;
-  }
-
-  async handleTaskSubmit(e: Event) {
-    e.preventDefault();
-    if (this.editingTask) {
-        await this.templeService.updateTask(this.currentTask.id, this.currentTask);
-    } else {
-        const { id, ...newTask } = this.currentTask;
-        await this.templeService.addTask(newTask);
-    }
-    this.closeTaskForm();
-  }
-
-  async deleteTask(id: number) {
-    if(confirm('Delete this task?')) {
-        await this.templeService.deleteTask(id);
-    }
-  }
-
-  async toggleTaskStatus(task: Task) {
-      const statuses: Task['status'][] = ['Pending', 'In Progress', 'Completed'];
-      const currentIndex = statuses.indexOf(task.status);
-      const nextStatus = statuses[(currentIndex + 1) % statuses.length];
-      await this.templeService.updateTask(task.id, { status: nextStatus });
-  }
-
-  async deleteReview(id: number) {
-      if(confirm('Delete this feedback?')) {
-          await this.templeService.deleteFeedback(id);
-      }
-  }
-
-  // --- Settings ---
-  async handleLogoUpload(event: any) {
-     const file = event.target.files[0];
-     if (file) {
-        this.logoUploading = true;
-        const url = await this.templeService.uploadFile(file, 'images');
-        if (url) this.tempConfig.logoUrl = url;
-        this.logoUploading = false;
-     }
+      this.showTaskForm = false;
   }
   
-  async handlePanchangamUpload(event: any) {
-      const file = event.target.files[0];
-      if (file) {
-          this.panchangamUploading = true;
-          // Upload to images bucket
-          const url = await this.templeService.uploadFile(file, 'images');
-          if (url) {
-              this.tempConfig.panchangamImageUrl = url;
-          }
-          this.panchangamUploading = false;
+  handleTaskSubmit(e: Event) {
+      e.preventDefault();
+      if (this.editingTask) {
+          this.templeService.updateTask(this.currentTask.id, this.currentTask);
+      } else {
+          this.templeService.addTask(this.currentTask);
       }
+      this.closeTaskForm();
+  }
+  
+  editTask(task: any) {
+      this.currentTask = { ...task };
+      this.editingTask = true;
+      this.showTaskForm = true;
+  }
+  
+  toggleTaskStatus(task: any) {
+      const nextStatus = task.status === 'Pending' ? 'In Progress' : task.status === 'In Progress' ? 'Completed' : 'Pending';
+      this.templeService.updateTask(task.id, { status: nextStatus });
   }
 
-  async handleQrUpload(event: any) {
-     const file = event.target.files[0];
-     if (file) {
-        if (!this.tempConfig.bankInfo) {
-           this.tempConfig.bankInfo = {
-             accountName: '', accountNumber: '', bankName: '', ifsc: '', branch: '', qrCodeUrl: ''
-           };
-        }
-        const url = await this.templeService.uploadFile(file, 'images');
-        if (url) this.tempConfig.bankInfo.qrCodeUrl = url;
-     }
+  deleteTask(id: number) {
+      if(confirm('Delete this task?')) this.templeService.deleteTask(id);
+  }
+
+  // ... Reviews
+  deleteReview(id: number) {
+      if(confirm('Delete review?')) this.templeService.deleteFeedback(id);
+  }
+
+  // ... Settings
+  async handleLogoUpload(e: any) {
+      const file = e.target.files[0];
+      if (!file) return;
+      this.logoUploading = true;
+      const url = await this.templeService.uploadFile(file, 'images');
+      if (url) this.tempConfig.logoUrl = url;
+      this.logoUploading = false;
+  }
+
+  async handlePanchangamUpload(e: any) {
+      const file = e.target.files[0];
+      if (!file) return;
+      this.panchangamUploading = true;
+      const url = await this.templeService.uploadFile(file, 'images');
+      if (url) this.tempConfig.panchangamImageUrl = url;
+      this.panchangamUploading = false;
+  }
+
+  async handleQrUpload(e: any) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const url = await this.templeService.uploadFile(file, 'images');
+      if (url && this.tempConfig.bankInfo) this.tempConfig.bankInfo.qrCodeUrl = url;
   }
 
   saveSettings(e: Event) {
-    e.preventDefault();
-    this.templeService.updateSiteConfig(this.tempConfig);
+      e.preventDefault();
+      this.templeService.updateSiteConfig(this.tempConfig);
+      alert('Configuration Saved!');
   }
 
-  // --- News ---
-  async handleFileSelectForNews(event: any) {
-    const file = event.target.files[0];
-    if (file) {
+  // ... Donations
+  filteredDonations = computed(() => {
+      const all = this.templeService.donations();
+      if (this.donationFilter === 'All') return all;
+      return all.filter(d => d.category === this.donationFilter);
+  });
+
+  // ... News
+  async handleFileSelectForNews(e: any) {
+      const file = e.target.files[0];
+      if (!file) return;
       this.newsUploading = true;
-      const url = await this.templeService.uploadFile(file, 'gallery');
+      const url = await this.templeService.uploadFile(file, 'gallery'); // or specific bucket
       if (url) this.newAttachmentUrl = url;
       this.newsUploading = false;
-    }
   }
 
-  async handleAddNews() {
-    if (this.newTitle && this.newContent) {
-      this.newsUploading = true;
-      await this.templeService.addNews(this.newTitle, this.newContent, this.newAttachmentUrl);
-      this.newsUploading = false;
+  handleAddNews() {
+      if (!this.newTitle || !this.newContent) return;
+      this.templeService.addNews(this.newTitle, this.newContent, this.newAttachmentUrl);
       this.newTitle = '';
       this.newContent = '';
       this.newAttachmentUrl = '';
-    }
+      
+      // Clear visual editor
+      if (this.newsEditor && this.newsEditor.nativeElement) {
+          this.newsEditor.nativeElement.innerHTML = '';
+      }
+      
+      alert('News Added');
   }
 
-  // --- Library ---
-  async handleLibFileUpload(event: any) {
-     const file = event.target.files[0];
-     if (file) {
+  // ... Library
+  async handleLibFileUpload(e: any) {
+       const file = e.target.files[0];
+       if (!file) return;
        this.libUploading = true;
-       // Changed 'e books' to 'ebooks' to match updated schema and service
        const bucket = this.libType === 'ebook' ? 'ebooks' : 'gallery';
        const url = await this.templeService.uploadFile(file, bucket);
        if (url) this.libUrl = url;
        this.libUploading = false;
-     }
   }
-
-  async handleAddLibrary() {
-     if (this.libTitle && this.libUrl) {
-        await this.templeService.addLibraryItem({
-           type: this.libType,
-           title: this.libTitle,
-           url: this.libUrl,
-           description: this.libDesc
-        });
-        this.libTitle = '';
-        this.libUrl = '';
-        this.libDesc = '';
-     }
+  
+  handleAddLibrary() {
+      if (!this.libTitle || !this.libUrl) return;
+      this.templeService.addLibraryItem({
+          type: this.libType as any,
+          title: this.libTitle,
+          url: this.libUrl,
+          description: this.libDesc
+      });
+      this.libTitle = '';
+      this.libUrl = '';
+      this.libDesc = '';
+      alert('Library Item Added');
   }
 }

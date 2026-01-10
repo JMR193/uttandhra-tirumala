@@ -159,20 +159,18 @@ export class TempleService {
     }
   });
 
-  // Content State (Initialized with Mock Data as Fallback)
+  // Content State
   flashNews = signal<string>("Om Namo Venkatesaya! Annual Brahmotsavams start from next week. Please book your darshan slots.");
   
   news = signal<NewsItem[]>([
     { id: 1, title: 'Special Darshan Tickets Available', date: '2023-10-25', content: 'Online booking for special darshan for the upcoming festival is now open.', attachmentUrl: '' },
     { id: 2, title: 'Annual Brahmotsavam Dates Announced', date: '2023-10-20', content: 'The annual Brahmotsavam will commence from next month. Devotees are requested to plan accordingly.', attachmentUrl: 'https://picsum.photos/id/10/200/200' },
-    { id: 3, title: 'Temple Renovation Update', date: '2023-10-15', content: 'The renovation of the eastern Gopuram is nearing completion.', attachmentUrl: '' }
   ]);
 
   gallery = signal<GalleryItem[]>([
     { id: 7, type: 'image', url: 'https://yt3.googleusercontent.com/7y8KChJI_huixiWRFJGfK9-t5E3d7LMvZQN7QdJ2VHdTn8MIwFIH9Mohj0mKmaSGzWlns_ujRQ=w1707-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj', caption: 'Temple Main Arch' },
     { id: 1, type: 'image', url: 'https://picsum.photos/id/10/800/600', caption: 'Temple Entrance at Sunrise' },
     { id: 2, type: 'image', url: 'https://picsum.photos/id/16/800/600', caption: 'Lush Green Gardens' },
-    { id: 3, type: 'image', url: 'https://picsum.photos/id/28/800/600', caption: 'Evening Aarti' },
   ]);
 
   feedbacks = signal<FeedbackItem[]>([
@@ -252,32 +250,13 @@ export class TempleService {
     this.realtimeStatus.set('CONNECTING');
     
     this.realtimeChannel = this.supabase.channel('public-db-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'news' }, () => {
-        console.log('Realtime: News updated');
-        this.fetchNews();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'gallery' }, () => {
-        console.log('Realtime: Gallery updated');
-        this.fetchGallery();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'feedbacks' }, () => {
-        console.log('Realtime: Feedbacks updated');
-        this.fetchFeedbacks();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'donations' }, () => {
-        console.log('Realtime: Donations updated');
-        this.fetchDonations();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'library' }, () => {
-        console.log('Realtime: Library updated');
-        this.fetchLibrary();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
-        console.log('Realtime: Tasks updated');
-        this.fetchTasks();
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'news' }, () => this.fetchNews())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'gallery' }, () => this.fetchGallery())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'feedbacks' }, () => this.fetchFeedbacks())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'donations' }, () => this.fetchDonations())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'library' }, () => this.fetchLibrary())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => this.fetchTasks())
       .subscribe((status) => {
-        console.log('Realtime connection status:', status);
         if (status === 'SUBSCRIBED') {
           this.realtimeStatus.set('CONNECTED');
         } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
@@ -291,7 +270,6 @@ export class TempleService {
   async refreshData() {
     if (this.isMockMode) return;
     
-    // Execute fetches in parallel for performance
     await Promise.allSettled([
       this.fetchNews(),
       this.fetchGallery(),
@@ -306,7 +284,6 @@ export class TempleService {
   
   async login(email: string, password: string): Promise<{ error: any; requires2FA?: boolean }> {
     if (this.isMockMode) {
-      // Mock Login credentials
       if (email === 'admin@uttarandhra.org' && password === 'admin') {
          this.isAdmin.set(false);
          this._pending2FASession = true;
@@ -315,7 +292,7 @@ export class TempleService {
       return { error: { message: 'Mock Mode: Use admin@uttarandhra.org / admin' } };
     }
 
-    const { data, error } = await this.supabase.auth.signInWithPassword({
+    const { error } = await this.supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -334,7 +311,6 @@ export class TempleService {
   async verifyTwoFactor(otp: string): Promise<boolean> {
     if (!this._pending2FASession) return false;
 
-    // Simulate OTP verification
     if (this.isMockMode) {
       if (otp === '123456') {
         this._pending2FASession = false;
@@ -376,14 +352,9 @@ export class TempleService {
         body: { name },
       });
 
-      if (error) {
-        console.error('Edge Function Error:', error);
-        return 'Error connecting to server function.';
-      }
-
+      if (error) return 'Error connecting to server function.';
       return data?.message || 'No message received';
     } catch (e) {
-      console.error('Edge Invoke Exception:', e);
       return 'Exception connecting to server.';
     }
   }
@@ -398,13 +369,10 @@ export class TempleService {
         body: { transactionId, amount }
       });
       if (error) {
-         console.error('Payment verification API error', error);
-         // In production we might block; here we allow fallback for demo robustness
          return { success: true, message: 'Verified (Offline Fallback)' };
       }
       return data;
     } catch (e) {
-      console.error('Payment verification failed', e);
       return { success: true, message: 'Verification bypassed (Network Error)' }; 
     }
   }
@@ -415,24 +383,22 @@ export class TempleService {
     try {
       const { data, error } = await this.supabase.from('news').select('*').order('date', { ascending: false });
       if (!error && data) {
-        // Map DB snake_case to Frontend camelCase
         const mappedNews: NewsItem[] = data.map((item: any) => ({
           id: item.id,
           title: item.title,
           date: item.date,
           content: item.content,
-          attachmentUrl: item.attachment_url // Handle snake_case from DB
+          attachmentUrl: item.attachment_url
         }));
         this.news.set(mappedNews);
       }
-    } catch (e) {
-      console.error('Error fetching news:', e);
-    }
+    } catch (e) { console.error('Error fetching news:', e); }
   }
 
   async addNews(title: string, content: string, attachmentUrl: string = '') {
+    const tempId = Date.now();
     const newItem: NewsItem = {
-      id: Date.now(),
+      id: tempId,
       title,
       content,
       date: new Date().toISOString().split('T')[0],
@@ -449,14 +415,21 @@ export class TempleService {
       title,
       content,
       date: newItem.date,
-      attachment_url: attachmentUrl
+      attachment_url: attachmentUrl || null
     };
 
-    const { error } = await this.supabase.from('news').insert([dbItem]);
+    const { data, error } = await this.supabase
+      .from('news')
+      .insert([dbItem])
+      .select()
+      .single();
+
     if (error) {
-        console.error('Error adding news:', JSON.stringify(error));
-        // Rollback optimistic update on error
-        this.fetchNews(); 
+        console.error('Error adding news:', JSON.stringify(error, null, 2));
+        this.news.update(items => items.filter(i => i.id !== tempId));
+        alert('Failed to save announcement. Please check permissions.');
+    } else if (data) {
+        this.news.update(items => items.map(i => i.id === tempId ? { ...i, id: data.id } : i));
     }
   }
 
@@ -466,7 +439,6 @@ export class TempleService {
        await this.deleteFileFromUrl(item.attachmentUrl, 'gallery');
     }
 
-    // Optimistic UI update
     this.news.update(items => items.filter(i => i.id !== id));
     
     if (this.isMockMode) return;
@@ -485,13 +457,27 @@ export class TempleService {
   }
 
   async addMediaItem(url: string, caption: string, type: 'image' | 'video') {
-    const newItem = { url, caption, type };
-    this.gallery.update(items => [{ ...newItem, id: Math.random() }, ...items]);
+    const tempId = Math.random();
+    const newItem = { id: tempId, url, caption, type };
+    this.gallery.update(items => [newItem, ...items]);
     
     if (this.isMockMode) return;
 
-    const { error } = await this.supabase.from('gallery').insert([newItem]);
-    if (error) console.error('Error adding gallery item:', error);
+    // Ensure type is strictly set
+    const dbType: string = type;
+
+    const { data, error } = await this.supabase.from('gallery').insert([{
+      url, caption, type: dbType
+    }]).select().single();
+
+    if (error) {
+      console.error('Error adding gallery item:', JSON.stringify(error, null, 2));
+      // Rollback
+      this.gallery.update(items => items.filter(i => i.id !== tempId));
+      alert('Failed to add media. You may not be authorized or backend is offline.');
+    } else if (data) {
+      this.gallery.update(items => items.map(i => i.id === tempId ? { ...i, id: data.id } : i));
+    }
   }
 
   async deletePhoto(id: number) {
@@ -515,14 +501,27 @@ export class TempleService {
   }
 
   async addFeedback(name: string, message: string) {
+    const tempId = Date.now();
     const newItem = {
+      id: tempId,
       name,
       message,
       date: new Date().toISOString().split('T')[0]
     };
-    this.feedbacks.update(items => [{...newItem, id: Date.now()}, ...items]);
+    this.feedbacks.update(items => [newItem, ...items]);
+    
     if (this.isMockMode) return;
-    await this.supabase.from('feedbacks').insert([newItem]);
+    
+    const { data, error } = await this.supabase.from('feedbacks').insert([{
+      name, message, date: newItem.date
+    }]).select().single();
+
+    if (error) {
+       console.error('Error adding feedback', JSON.stringify(error));
+       this.feedbacks.update(items => items.filter(i => i.id !== tempId));
+    } else if (data) {
+       this.feedbacks.update(items => items.map(i => i.id === tempId ? { ...i, id: data.id } : i));
+    }
   }
 
   async deleteFeedback(id: number) {
@@ -535,7 +534,6 @@ export class TempleService {
     try {
       const { data, error } = await this.supabase.from('donations').select('*').order('date', { ascending: false });
       if (!error && data) {
-        // Map database fields to interface
         const mappedData: Donation[] = data.map((d: any) => ({
           id: d.id,
           donorName: d.donor_name,
@@ -553,6 +551,7 @@ export class TempleService {
 
   async addDonation(donation: Donation) {
     const dbItem = {
+      id: donation.id, // ID generated client side for transactions
       donor_name: donation.donorName,
       gothram: donation.gothram,
       category: donation.category,
@@ -564,7 +563,9 @@ export class TempleService {
     
     this.donations.update(items => [donation, ...items]);
     if (this.isMockMode) return;
-    await this.supabase.from('donations').insert([dbItem]);
+    
+    const { error } = await this.supabase.from('donations').insert([dbItem]);
+    if (error) console.error('Error recording donation', error);
   }
 
   async fetchLibrary() {
@@ -577,15 +578,24 @@ export class TempleService {
   }
 
   async addLibraryItem(item: Omit<LibraryItem, 'id'>) {
-    this.library.update(items => [{ ...item, id: Date.now() }, ...items]);
+    const tempId = Date.now();
+    this.library.update(items => [{ ...item, id: tempId }, ...items]);
+    
     if (this.isMockMode) return;
-    await this.supabase.from('library').insert([item]);
+    
+    const { data, error } = await this.supabase.from('library').insert([item]).select().single();
+    
+    if (error) {
+       console.error('Error adding library item', JSON.stringify(error));
+       this.library.update(items => items.filter(i => i.id !== tempId));
+    } else if (data) {
+       this.library.update(items => items.map(i => i.id === tempId ? { ...i, id: data.id } : i));
+    }
   }
 
   async deleteLibraryItem(id: number | string) {
     const item = this.library().find(i => i.id === id);
     if (item && item.url) {
-        // Updated bucket name to 'ebooks' without space for robustness
         const bucket = item.type === 'ebook' ? 'ebooks' : 'gallery'; 
         await this.deleteFileFromUrl(item.url, bucket);
     }
@@ -600,7 +610,6 @@ export class TempleService {
     try {
       const { data, error } = await this.supabase.from('tasks').select('*').order('id', { ascending: false });
       if (!error && data) {
-        // Map snake_case to camelCase
         const mappedTasks: Task[] = data.map((t: any) => ({
             id: t.id,
             title: t.title,
@@ -621,7 +630,6 @@ export class TempleService {
     
     if (this.isMockMode) return;
     
-    // Map camelCase to snake_case for DB
     const dbTask = {
         title: task.title,
         description: task.description,
@@ -631,10 +639,17 @@ export class TempleService {
         due_date: task.dueDate
     };
     
-    const { error } = await this.supabase.from('tasks').insert([dbTask]);
+    const { data, error } = await this.supabase
+       .from('tasks')
+       .insert([dbTask])
+       .select()
+       .single();
+
     if (error) {
-       console.error('Error adding task', error);
-       this.fetchTasks(); // Revert
+       console.error('Error adding task', JSON.stringify(error));
+       this.tasks.update(t => t.filter(x => x.id !== tempId));
+    } else if (data) {
+       this.tasks.update(t => t.map(x => x.id === tempId ? { ...x, id: data.id } : x));
     }
   }
 
@@ -644,7 +659,6 @@ export class TempleService {
     if (this.isMockMode) return;
     
     const dbUpdates: any = { ...updates };
-    // Fix Mapping
     if (updates.dueDate) {
         dbUpdates.due_date = updates.dueDate;
         delete dbUpdates.dueDate;
@@ -656,12 +670,11 @@ export class TempleService {
 
   async deleteTask(id: number) {
     this.tasks.update(items => items.filter(t => t.id !== id));
-    
     if (this.isMockMode) return;
     await this.supabase.from('tasks').delete().eq('id', id);
   }
 
-  // --- Booking Methods (New) ---
+  // --- Booking Methods ---
 
   async getSlotAvailability(date: string): Promise<SlotAvailability[]> {
     const slots = ['09:00 AM', '10:00 AM', '11:00 AM', '04:00 PM', '05:00 PM', '06:00 PM'];
@@ -676,8 +689,6 @@ export class TempleService {
       }));
     }
 
-    // In a real app, you would optimize this to a single grouping query via RPC
-    // For now, we do client side grouping of fetched rows for the day
     const { data } = await this.supabase.from('darshan_bookings').select('slot').eq('date', date);
     
     const counts: Record<string, number> = {};
@@ -700,7 +711,6 @@ export class TempleService {
         return { success: true, ticketCode: 'TKT-' + Date.now() };
      }
 
-     // 1. Check Availability again
      const { count } = await this.supabase.from('darshan_bookings')
          .select('*', { count: 'exact' })
          .eq('date', booking.date)
@@ -737,12 +747,10 @@ export class TempleService {
 
     try {
       const fileExt = file.name.split('.').pop();
-      // Unique filename to prevent overwrites
       const fileName = `${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      // Docs: .upload('path', file, options)
-      const { data, error: uploadError } = await this.supabase.storage
+      const { error: uploadError } = await this.supabase.storage
         .from(bucket)
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -766,9 +774,6 @@ export class TempleService {
      if (this.isMockMode || !publicUrl) return;
 
      try {
-       // Extract path from Public URL
-       // URL Pattern: https://[project].supabase.co/storage/v1/object/public/[bucket]/[path]
-       
        const encodedBucket = encodeURIComponent(bucket);
        const fragmentEncoded = `/storage/v1/object/public/${encodedBucket}/`;
        const fragmentRaw = `/storage/v1/object/public/${bucket}/`;
@@ -782,7 +787,6 @@ export class TempleService {
        }
 
        if (path) {
-           // Storage remove expects the path as it was saved (decoded)
            const decodedPath = decodeURIComponent(path);
            const { error } = await this.supabase.storage.from(bucket).remove([decodedPath]);
            if (error) console.error('Delete File Error:', error);
@@ -807,11 +811,9 @@ export class TempleService {
     const tithis = ['Shukla Padyami', 'Shukla Vidiya', 'Shukla Tadhiya', 'Shukla Chavithi', 'Shukla Panchami', 'Shukla Shashti', 'Shukla Saptami', 'Shukla Ashtami', 'Shukla Navami', 'Shukla Dashami', 'Shukla Ekadashi', 'Shukla Dwadashi', 'Shukla Trayodashi', 'Shukla Chaturdashi', 'Purnima', 'Krishna Padyami', 'Krishna Vidiya', 'Krishna Tadhiya', 'Krishna Chavithi', 'Krishna Panchami', 'Krishna Shashti', 'Krishna Saptami', 'Krishna Ashtami', 'Krishna Navami', 'Krishna Dashami', 'Krishna Ekadashi', 'Krishna Dwadashi', 'Krishna Trayodashi', 'Krishna Chaturdashi', 'Amavasya'];
     const nakshatras = ['Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashirsha', 'Ardra', 'Punarvasu', 'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta', 'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha', 'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada', 'Uttara Bhadrapada', 'Revati'];
     
-    // Rahu Kalam logic (approximate for standard time)
     const rahuKalams = ['04:30 PM - 06:00 PM', '07:30 AM - 09:00 AM', '03:00 PM - 04:30 PM', '12:00 PM - 01:30 PM', '01:30 PM - 03:00 PM', '10:30 AM - 12:00 PM', '09:00 AM - 10:30 AM'];
     const yamagandams = ['12:00 PM - 01:30 PM', '10:30 AM - 12:00 PM', '09:00 AM - 10:30 AM', '07:30 AM - 09:00 AM', '06:00 AM - 07:30 AM', '03:00 PM - 04:30 PM', '01:30 PM - 03:00 PM'];
 
-    // Pseudo-calculation for Tithi/Nakshatra based on day of year
     const start = new Date(date.getFullYear(), 0, 0);
     const diff = date.getTime() - start.getTime();
     const oneDay = 1000 * 60 * 60 * 24;
