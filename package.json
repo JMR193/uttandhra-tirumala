@@ -1,15 +1,15 @@
 {
   "name": "uttarandhra-tirupati",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "ng": "ng",
+    "dev": "vite",
     "start": "vite",
     "build": "vite build",
     "watch": "vite build --watch",
-    "test": "ng test",
-    "deploy": "npm run build && firebase deploy"
+    "test": "ng test"
   },
-  "private": true,
   "dependencies": {
     "@angular/animations": "^18.0.0",
     "@angular/common": "^18.0.0",
@@ -30,8 +30,6 @@
     "@angular/compiler-cli": "^18.0.0",
     "@types/d3": "^7.4.3",
     "@types/node": "^18.18.0",
-    "@types/three": "^0.160.0",
-    "firebase-tools": "^13.0.0",
     "typescript": "~5.4.2",
     "vite": "^5.0.0"
   }
