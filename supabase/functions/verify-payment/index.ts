@@ -2,6 +2,8 @@
 // Setup type definitions for built-in Supabase Runtime APIs
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
+declare var Deno: any;
+
 console.info('verify-payment function started');
 
 (Deno as any).serve(async (req: Request) => {

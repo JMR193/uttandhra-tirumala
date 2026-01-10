@@ -115,7 +115,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 })
 export class GalleryComponent {
   templeService = inject(TempleService);
-  sanitizer = inject(DomSanitizer);
+  sanitizer: DomSanitizer = inject(DomSanitizer);
   
   uploadMode: 'url' | 'file' = 'url';
   newPhotoUrls = '';

@@ -1,6 +1,6 @@
 
 import { Component, inject, signal, ElementRef, ViewChild, AfterViewInit, effect, computed } from '@angular/core';
-import { TempleService, Donation, SiteConfig } from '../services/temple.service';
+import { TempleService, Donation, SiteConfig, Task } from '../services/temple.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import * as d3 from 'd3';
@@ -72,7 +72,7 @@ import * as d3 from 'd3';
         
         <div class="flex h-screen overflow-hidden">
           
-          <!-- Sidebar Navigation (Updated Colors) -->
+          <!-- Sidebar Navigation -->
           <aside class="w-64 bg-red-900 text-amber-50 flex flex-col shadow-2xl z-20 border-r border-red-800">
             <div class="p-6 border-b border-red-800/50 text-center bg-red-950/30">
                <div class="w-12 h-12 mx-auto mb-2 rounded-full overflow-hidden border-2 border-amber-400">
@@ -93,6 +93,14 @@ import * as d3 from 'd3';
               <button (click)="setActiveTab('dashboard')" [class]="activeTab() === 'dashboard' ? 'bg-amber-500 text-red-950 font-bold shadow-md' : 'hover:bg-red-800 text-amber-100'" class="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-all">
                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" /></svg>
                  Dashboard
+              </button>
+              <button (click)="setActiveTab('tasks')" [class]="activeTab() === 'tasks' ? 'bg-amber-500 text-red-950 font-bold shadow-md' : 'hover:bg-red-800 text-amber-100'" class="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-all">
+                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>
+                 Task Manager
+              </button>
+              <button (click)="setActiveTab('reviews')" [class]="activeTab() === 'reviews' ? 'bg-amber-500 text-red-950 font-bold shadow-md' : 'hover:bg-red-800 text-amber-100'" class="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-all">
+                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" /></svg>
+                 Reviews
               </button>
               <button (click)="setActiveTab('settings')" [class]="activeTab() === 'settings' ? 'bg-amber-500 text-red-950 font-bold shadow-md' : 'hover:bg-red-800 text-amber-100'" class="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-all">
                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.212 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
@@ -136,8 +144,8 @@ import * as d3 from 'd3';
                     <p class="text-4xl font-serif font-bold text-amber-700 mt-2">{{ templeService.news().length }}</p>
                  </div>
                  <div class="bg-white p-6 rounded-xl shadow-lg border-l-8 border-orange-400">
-                    <p class="text-stone-500 text-xs font-bold uppercase tracking-widest">Media Assets</p>
-                    <p class="text-4xl font-serif font-bold text-orange-700 mt-2">{{ templeService.gallery().length + templeService.library().length }}</p>
+                    <p class="text-stone-500 text-xs font-bold uppercase tracking-widest">Pending Tasks</p>
+                    <p class="text-4xl font-serif font-bold text-orange-700 mt-2">{{ getPendingTasksCount() }}</p>
                  </div>
               </div>
 
@@ -185,6 +193,145 @@ import * as d3 from 'd3';
                  </div>
                  <p class="text-xs text-stone-500 mt-2 italic">This text scrolls across the top of the homepage in marquee style.</p>
               </div>
+            }
+
+            <!-- Task Manager Tab -->
+            @if (activeTab() === 'tasks') {
+              <div class="flex justify-between items-center mb-6 border-b border-amber-200 pb-2">
+                <h2 class="text-3xl font-serif font-bold text-red-900">Task Management</h2>
+                <button (click)="openTaskModal()" class="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 font-bold shadow-md flex items-center gap-2">
+                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                   New Task
+                </button>
+              </div>
+
+              <!-- Task Form -->
+              @if (showTaskForm) {
+                 <div class="bg-white p-6 rounded-xl shadow-lg border border-amber-200 mb-8 animate-fade-in">
+                    <h3 class="text-xl font-bold text-stone-800 mb-4">{{ editingTask ? 'Edit Task' : 'Create New Task' }}</h3>
+                    <form (submit)="handleTaskSubmit($event)">
+                       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div>
+                            <label class="block text-stone-700 font-bold mb-1 text-sm">Task Title</label>
+                            <input [(ngModel)]="currentTask.title" name="tTitle" required class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none">
+                          </div>
+                          <div>
+                            <label class="block text-stone-700 font-bold mb-1 text-sm">Assign To</label>
+                            <input [(ngModel)]="currentTask.assignee" name="tAssignee" required class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none">
+                          </div>
+                          <div class="md:col-span-2">
+                             <label class="block text-stone-700 font-bold mb-1 text-sm">Description</label>
+                             <textarea [(ngModel)]="currentTask.description" name="tDesc" class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none h-20"></textarea>
+                          </div>
+                          <div>
+                             <label class="block text-stone-700 font-bold mb-1 text-sm">Priority</label>
+                             <select [(ngModel)]="currentTask.priority" name="tPriority" class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none bg-white">
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                             </select>
+                          </div>
+                          <div>
+                             <label class="block text-stone-700 font-bold mb-1 text-sm">Due Date</label>
+                             <input type="date" [(ngModel)]="currentTask.dueDate" name="tDue" class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none">
+                          </div>
+                          <div>
+                             <label class="block text-stone-700 font-bold mb-1 text-sm">Status</label>
+                             <select [(ngModel)]="currentTask.status" name="tStatus" class="w-full p-2 border border-stone-300 rounded focus:ring-2 focus:ring-amber-500 outline-none bg-white">
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                             </select>
+                          </div>
+                       </div>
+                       <div class="flex gap-2 justify-end">
+                          <button type="button" (click)="closeTaskForm()" class="px-4 py-2 text-stone-600 hover:text-stone-900 font-bold border border-stone-300 rounded">Cancel</button>
+                          <button type="submit" class="bg-red-800 text-white px-6 py-2 rounded hover:bg-red-900 font-bold shadow-sm">Save Task</button>
+                       </div>
+                    </form>
+                 </div>
+              }
+
+              <!-- Tasks List -->
+              <div class="grid grid-cols-1 gap-4">
+                 @for (task of templeService.tasks(); track task.id) {
+                    <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 hover:shadow-md transition-shadow flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+                         [class.border-l-red-500]="task.priority === 'High'"
+                         [class.border-l-yellow-500]="task.priority === 'Medium'"
+                         [class.border-l-green-500]="task.priority === 'Low'">
+                       <div class="flex-grow">
+                          <div class="flex items-center gap-2 mb-1">
+                             <h4 class="font-bold text-lg text-stone-800">{{ task.title }}</h4>
+                             <span class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide border"
+                                   [class.bg-red-100]="task.priority === 'High'" [class.text-red-800]="task.priority === 'High'" [class.border-red-200]="task.priority === 'High'"
+                                   [class.bg-yellow-100]="task.priority === 'Medium'" [class.text-yellow-800]="task.priority === 'Medium'" [class.border-yellow-200]="task.priority === 'Medium'"
+                                   [class.bg-green-100]="task.priority === 'Low'" [class.text-green-800]="task.priority === 'Low'" [class.border-green-200]="task.priority === 'Low'">
+                                {{ task.priority }}
+                             </span>
+                             <button (click)="toggleTaskStatus(task)" class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide cursor-pointer border transition-colors hover:brightness-95"
+                                   [class.bg-stone-100]="task.status === 'Pending'" [class.text-stone-600]="task.status === 'Pending'"
+                                   [class.bg-blue-100]="task.status === 'In Progress'" [class.text-blue-800]="task.status === 'In Progress'"
+                                   [class.bg-green-100]="task.status === 'Completed'" [class.text-green-800]="task.status === 'Completed'">
+                                {{ task.status }}
+                             </button>
+                          </div>
+                          <p class="text-stone-600 text-sm mb-2">{{ task.description }}</p>
+                          <div class="flex gap-4 text-xs text-stone-500 font-bold">
+                             <span class="flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3"><path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z" /></svg>
+                                {{ task.assignee }}
+                             </span>
+                             <span class="flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3"><path fill-rule="evenodd" d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75Z" clip-rule="evenodd" /></svg>
+                                {{ task.dueDate }}
+                             </span>
+                          </div>
+                       </div>
+                       <div class="flex gap-2">
+                          <button (click)="editTask(task)" class="p-2 text-stone-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors" title="Edit">
+                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>
+                          </button>
+                          <button (click)="deleteTask(task.id)" class="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete">
+                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
+                          </button>
+                       </div>
+                    </div>
+                 }
+                 @if (templeService.tasks().length === 0) {
+                     <div class="text-center py-12 text-stone-500 bg-white rounded-lg border-2 border-dashed border-stone-200">
+                        <p>No tasks assigned yet.</p>
+                     </div>
+                 }
+              </div>
+            }
+
+            <!-- Reviews Management Tab -->
+            @if (activeTab() === 'reviews') {
+               <h2 class="text-3xl font-serif font-bold text-red-900 mb-6 border-b border-amber-200 pb-2">User Feedback & Reviews</h2>
+               <div class="grid grid-cols-1 gap-4">
+                  @for (feedback of templeService.feedbacks(); track feedback.id) {
+                     <div class="bg-white p-5 rounded-lg shadow-sm border border-stone-200 flex justify-between items-start gap-4">
+                        <div class="flex-grow">
+                           <div class="flex items-center gap-2 mb-2">
+                              <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-sm">
+                                 {{ feedback.name.charAt(0).toUpperCase() }}
+                              </div>
+                              <div>
+                                 <h4 class="font-bold text-stone-800 text-sm">{{ feedback.name }}</h4>
+                                 <p class="text-[10px] text-stone-500">{{ feedback.date }}</p>
+                              </div>
+                           </div>
+                           <p class="text-stone-600 text-sm italic bg-stone-50 p-3 rounded">"{{ feedback.message }}"</p>
+                        </div>
+                        <button (click)="deleteReview(feedback.id)" class="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded transition-colors" title="Delete Review">
+                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
+                        </button>
+                     </div>
+                  }
+                  @if (templeService.feedbacks().length === 0) {
+                     <div class="text-center py-12 text-stone-500 italic">No feedback received yet.</div>
+                  }
+               </div>
             }
 
             <!-- Site Settings View -->
@@ -483,7 +630,7 @@ export class AdminComponent implements AfterViewInit {
   errorMsg = '';
 
   // Navigation
-  activeTab = signal<'dashboard' | 'settings' | 'donations' | 'news' | 'library'>('dashboard');
+  activeTab = signal<'dashboard' | 'tasks' | 'reviews' | 'settings' | 'donations' | 'news' | 'library'>('dashboard');
 
   // Dashboard
   @ViewChild('barChartContainer') barChartContainer: ElementRef | undefined;
@@ -494,6 +641,19 @@ export class AdminComponent implements AfterViewInit {
   // Edge Function Testing
   testingEdge = false;
   edgeResponse = 'Ready to test';
+
+  // Task Management State
+  showTaskForm = false;
+  editingTask = false;
+  currentTask: Task = {
+    id: 0,
+    title: '',
+    description: '',
+    assignee: '',
+    status: 'Pending',
+    priority: 'Medium',
+    dueDate: new Date().toISOString().split('T')[0]
+  };
 
   // Settings
   tempConfig: SiteConfig = { ...this.templeService.siteConfig() };
@@ -591,6 +751,10 @@ export class AdminComponent implements AfterViewInit {
 
   // --- Dashboard Logic ---
   
+  getPendingTasksCount() {
+    return this.templeService.tasks().filter(t => t.status !== 'Completed').length;
+  }
+
   async testEdgeFunction() {
     this.testingEdge = true;
     this.edgeResponse = 'Connecting...';
@@ -696,6 +860,53 @@ export class AdminComponent implements AfterViewInit {
     this.templeService.updateFlashNews(this.flashNewsInput);
   }
 
+  // --- Task Logic ---
+  openTaskModal() {
+    this.editingTask = false;
+    this.currentTask = { id: 0, title: '', description: '', assignee: '', status: 'Pending', priority: 'Medium', dueDate: new Date().toISOString().split('T')[0] };
+    this.showTaskForm = true;
+  }
+  
+  editTask(task: Task) {
+    this.editingTask = true;
+    this.currentTask = { ...task };
+    this.showTaskForm = true;
+  }
+
+  closeTaskForm() {
+    this.showTaskForm = false;
+  }
+
+  async handleTaskSubmit(e: Event) {
+    e.preventDefault();
+    if (this.editingTask) {
+        await this.templeService.updateTask(this.currentTask.id, this.currentTask);
+    } else {
+        const { id, ...newTask } = this.currentTask;
+        await this.templeService.addTask(newTask);
+    }
+    this.closeTaskForm();
+  }
+
+  async deleteTask(id: number) {
+    if(confirm('Delete this task?')) {
+        await this.templeService.deleteTask(id);
+    }
+  }
+
+  async toggleTaskStatus(task: Task) {
+      const statuses: Task['status'][] = ['Pending', 'In Progress', 'Completed'];
+      const currentIndex = statuses.indexOf(task.status);
+      const nextStatus = statuses[(currentIndex + 1) % statuses.length];
+      await this.templeService.updateTask(task.id, { status: nextStatus });
+  }
+
+  async deleteReview(id: number) {
+      if(confirm('Delete this feedback?')) {
+          await this.templeService.deleteFeedback(id);
+      }
+  }
+
   // --- Settings ---
   async handleLogoUpload(event: any) {
      const file = event.target.files[0];
@@ -765,7 +976,8 @@ export class AdminComponent implements AfterViewInit {
      const file = event.target.files[0];
      if (file) {
        this.libUploading = true;
-       const bucket = this.libType === 'ebook' ? 'e books' : 'gallery';
+       // Changed 'e books' to 'ebooks' to match updated schema and service
+       const bucket = this.libType === 'ebook' ? 'ebooks' : 'gallery';
        const url = await this.templeService.uploadFile(file, bucket);
        if (url) this.libUrl = url;
        this.libUploading = false;

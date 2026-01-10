@@ -79,6 +79,33 @@ export interface LibraryItem {
   description?: string;
 }
 
+export interface Task {
+  id: number;
+  title: string;
+  description: string;
+  assignee: string;
+  status: 'Pending' | 'In Progress' | 'Completed';
+  priority: 'Low' | 'Medium' | 'High';
+  dueDate: string;
+}
+
+export interface Booking {
+  id?: number;
+  date: string;
+  slot: string;
+  devoteeName: string;
+  mobile: string;
+  ticketCode: string;
+  status: 'Booked' | 'Cancelled';
+}
+
+export interface SlotAvailability {
+  time: string;
+  booked: number;
+  capacity: number;
+  status: 'AVAILABLE' | 'FULL' | 'FAST_FILLING';
+}
+
 export interface Panchangam {
   date: string;
   tithi: string;
@@ -89,16 +116,6 @@ export interface Panchangam {
   yamagandam: string;
   sunrise: string;
   sunset: string;
-}
-
-export interface Festival {
-  id: number;
-  name: string;
-  month: string;
-  date: string;
-  description: string;
-  icon: string; // SVG path or emoji
-  colorClass: string;
 }
 
 @Injectable({
@@ -177,43 +194,9 @@ export class TempleService {
     { id: 3, type: 'ebook', title: 'Temple History PDF', url: '#', description: 'Complete history of the temple construction.' }
   ]);
 
-  festivals = signal<Festival[]>([
-    { 
-      id: 1, 
-      name: 'Vaikuntha Ekadashi', 
-      month: 'JAN', 
-      date: '02', 
-      description: 'The most auspicious day when the Vaikuntha Dwaram (Northern Gate) is opened. Thousands of devotees seek the darshan of Lord Venkateswara through this gateway.', 
-      icon: 'M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z',
-      colorClass: 'border-blue-500 text-blue-600'
-    },
-    { 
-      id: 2, 
-      name: 'Rathasapthami', 
-      month: 'FEB', 
-      date: '16', 
-      description: 'Known as "Ardha Brahmotsavam". The Lord is taken in procession on seven different vahanams starting from sunrise to sunset.', 
-      icon: 'M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z',
-      colorClass: 'border-orange-500 text-orange-600'
-    },
-    { 
-      id: 3, 
-      name: 'Annual Brahmotsavams', 
-      month: 'OCT', 
-      date: '04-12', 
-      description: 'The grandest nine-day festival. Highlights include Garuda Seva, Rathotsavam, and Chakrasnanam. The temple is decorated with dazzling lights and flowers.', 
-      icon: 'M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.66a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.66a2.25 2.25 0 0 0 1.632-2.163Z',
-      colorClass: 'border-purple-600 text-purple-600'
-    },
-    { 
-      id: 4, 
-      name: 'Sri Vari Kalyanam', 
-      month: 'MAY', 
-      date: '10', 
-      description: 'The celestial wedding ceremony of Lord Venkateswara and Goddess Padmavathi Devi performed with great pomp and gaiety.', 
-      icon: 'M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z',
-      colorClass: 'border-red-600 text-red-600'
-    }
+  tasks = signal<Task[]>([
+    { id: 1, title: 'Repair North Gate Light', description: 'The LED focus light is flickering.', assignee: 'Electrician', status: 'Pending', priority: 'High', dueDate: '2023-11-01' },
+    { id: 2, title: 'Flower Decoration for Friday', description: 'Order 50kg Marigolds', assignee: 'Raju', status: 'In Progress', priority: 'Medium', dueDate: '2023-11-03' }
   ]);
 
   // Derived State
@@ -289,6 +272,10 @@ export class TempleService {
         console.log('Realtime: Library updated');
         this.fetchLibrary();
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+        console.log('Realtime: Tasks updated');
+        this.fetchTasks();
+      })
       .subscribe((status) => {
         console.log('Realtime connection status:', status);
         if (status === 'SUBSCRIBED') {
@@ -310,7 +297,8 @@ export class TempleService {
       this.fetchGallery(),
       this.fetchLibrary(),
       this.fetchFeedbacks(),
-      this.fetchDonations()
+      this.fetchDonations(),
+      this.fetchTasks()
     ]);
   }
 
@@ -537,11 +525,28 @@ export class TempleService {
     await this.supabase.from('feedbacks').insert([newItem]);
   }
 
+  async deleteFeedback(id: number) {
+     this.feedbacks.update(items => items.filter(i => i.id !== id));
+     if (this.isMockMode) return;
+     await this.supabase.from('feedbacks').delete().eq('id', id);
+  }
+
   async fetchDonations() {
     try {
       const { data, error } = await this.supabase.from('donations').select('*').order('date', { ascending: false });
       if (!error && data) {
-        this.donations.set(data);
+        // Map database fields to interface
+        const mappedData: Donation[] = data.map((d: any) => ({
+          id: d.id,
+          donorName: d.donor_name,
+          gothram: d.gothram,
+          category: d.category,
+          amount: d.amount,
+          date: d.date,
+          pan: d.pan,
+          transactionId: d.transaction_id
+        }));
+        this.donations.set(mappedData);
       }
     } catch (e) { console.error('Error fetching donations', e); }
   }
@@ -580,14 +585,147 @@ export class TempleService {
   async deleteLibraryItem(id: number | string) {
     const item = this.library().find(i => i.id === id);
     if (item && item.url) {
-        // Determine bucket based on type. "e books" has a space.
-        const bucket = item.type === 'ebook' ? 'e books' : 'gallery'; 
+        // Updated bucket name to 'ebooks' without space for robustness
+        const bucket = item.type === 'ebook' ? 'ebooks' : 'gallery'; 
         await this.deleteFileFromUrl(item.url, bucket);
     }
 
     this.library.update(items => items.filter(i => i.id !== id));
     if (this.isMockMode) return;
     await this.supabase.from('library').delete().eq('id', id);
+  }
+
+  // --- Tasks Methods ---
+  async fetchTasks() {
+    try {
+      const { data, error } = await this.supabase.from('tasks').select('*').order('id', { ascending: false });
+      if (!error && data) {
+        // Map snake_case to camelCase
+        const mappedTasks: Task[] = data.map((t: any) => ({
+            id: t.id,
+            title: t.title,
+            description: t.description,
+            assignee: t.assignee,
+            status: t.status,
+            priority: t.priority,
+            dueDate: t.due_date
+        }));
+        this.tasks.set(mappedTasks);
+      }
+    } catch(e) { console.error('Error fetching tasks', e); }
+  }
+
+  async addTask(task: Omit<Task, 'id'>) {
+    const tempId = Date.now();
+    this.tasks.update(t => [{...task, id: tempId}, ...t]);
+    
+    if (this.isMockMode) return;
+    
+    // Map camelCase to snake_case for DB
+    const dbTask = {
+        title: task.title,
+        description: task.description,
+        assignee: task.assignee,
+        status: task.status,
+        priority: task.priority,
+        due_date: task.dueDate
+    };
+    
+    const { error } = await this.supabase.from('tasks').insert([dbTask]);
+    if (error) {
+       console.error('Error adding task', error);
+       this.fetchTasks(); // Revert
+    }
+  }
+
+  async updateTask(id: number, updates: Partial<Task>) {
+    this.tasks.update(items => items.map(t => t.id === id ? { ...t, ...updates } : t));
+    
+    if (this.isMockMode) return;
+    
+    const dbUpdates: any = { ...updates };
+    // Fix Mapping
+    if (updates.dueDate) {
+        dbUpdates.due_date = updates.dueDate;
+        delete dbUpdates.dueDate;
+    }
+    
+    const { error } = await this.supabase.from('tasks').update(dbUpdates).eq('id', id);
+    if (error) console.error('Error updating task', error);
+  }
+
+  async deleteTask(id: number) {
+    this.tasks.update(items => items.filter(t => t.id !== id));
+    
+    if (this.isMockMode) return;
+    await this.supabase.from('tasks').delete().eq('id', id);
+  }
+
+  // --- Booking Methods (New) ---
+
+  async getSlotAvailability(date: string): Promise<SlotAvailability[]> {
+    const slots = ['09:00 AM', '10:00 AM', '11:00 AM', '04:00 PM', '05:00 PM', '06:00 PM'];
+    const capacity = 50;
+    
+    if (this.isMockMode) {
+      return slots.map(time => ({
+        time, 
+        booked: Math.floor(Math.random() * 50),
+        capacity,
+        status: Math.random() > 0.8 ? 'FULL' : 'AVAILABLE'
+      }));
+    }
+
+    // In a real app, you would optimize this to a single grouping query via RPC
+    // For now, we do client side grouping of fetched rows for the day
+    const { data } = await this.supabase.from('darshan_bookings').select('slot').eq('date', date);
+    
+    const counts: Record<string, number> = {};
+    data?.forEach((b: any) => {
+       counts[b.slot] = (counts[b.slot] || 0) + 1;
+    });
+
+    return slots.map(time => {
+      const booked = counts[time] || 0;
+      let status: 'AVAILABLE' | 'FULL' | 'FAST_FILLING' = 'AVAILABLE';
+      if (booked >= capacity) status = 'FULL';
+      else if (booked >= capacity * 0.8) status = 'FAST_FILLING';
+      
+      return { time, booked, capacity, status };
+    });
+  }
+
+  async bookDarshanSlot(booking: Booking): Promise<{success: boolean, ticketCode?: string, message?: string}> {
+     if (this.isMockMode) {
+        return { success: true, ticketCode: 'TKT-' + Date.now() };
+     }
+
+     // 1. Check Availability again
+     const { count } = await this.supabase.from('darshan_bookings')
+         .select('*', { count: 'exact' })
+         .eq('date', booking.date)
+         .eq('slot', booking.slot);
+         
+     if ((count || 0) >= 50) {
+        return { success: false, message: 'Slot is full. Please choose another.' };
+     }
+
+     const ticketCode = `TKT-${Math.floor(1000 + Math.random() * 9000)}`;
+     
+     const { error } = await this.supabase.from('darshan_bookings').insert([{
+       date: booking.date,
+       slot: booking.slot,
+       devotee_name: booking.devoteeName,
+       mobile: booking.mobile,
+       ticket_code: ticketCode
+     }]);
+
+     if (error) {
+       console.error('Booking failed', error);
+       return { success: false, message: 'Server Error. Try again.' };
+     }
+
+     return { success: true, ticketCode };
   }
 
   // --- Storage Methods ---
@@ -631,7 +769,6 @@ export class TempleService {
        // Extract path from Public URL
        // URL Pattern: https://[project].supabase.co/storage/v1/object/public/[bucket]/[path]
        
-       // Handle encoding: 'e books' in URL usually becomes 'e%20books'
        const encodedBucket = encodeURIComponent(bucket);
        const fragmentEncoded = `/storage/v1/object/public/${encodedBucket}/`;
        const fragmentRaw = `/storage/v1/object/public/${bucket}/`;
@@ -647,7 +784,6 @@ export class TempleService {
        if (path) {
            // Storage remove expects the path as it was saved (decoded)
            const decodedPath = decodeURIComponent(path);
-           // Docs: .remove(['file1', 'file2'])
            const { error } = await this.supabase.storage.from(bucket).remove([decodedPath]);
            if (error) console.error('Delete File Error:', error);
        }

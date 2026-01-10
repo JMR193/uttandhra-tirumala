@@ -1,3 +1,4 @@
+
 import '@angular/compiler';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideZonelessChangeDetection } from '@angular/core';
@@ -10,6 +11,7 @@ import { GalleryComponent } from './src/components/gallery.component';
 import { FeedbackComponent } from './src/components/feedback.component';
 import { LibraryComponent } from './src/components/library.component';
 import { HistoryComponent } from './src/components/history.component';
+import { BookingComponent } from './src/components/booking.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -19,6 +21,7 @@ const routes: Routes = [
   { path: 'gallery', component: GalleryComponent },
   { path: 'library', component: LibraryComponent },
   { path: 'feedback', component: FeedbackComponent },
+  { path: 'booking', component: BookingComponent },
   { path: '**', redirectTo: '' }
 ];
 
