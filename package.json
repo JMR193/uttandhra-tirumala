@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "mkdir -p dist/uttarandhra-tirupati && cp index.html dist/uttarandhra-tirupati/index.html",
-    "watch": "ng build --watch --configuration development",
+    "start": "vite",
+    "build": "vite build",
+    "watch": "vite build --watch",
     "test": "ng test",
-    "deploy": "ng build && firebase deploy"
+    "deploy": "npm run build && firebase deploy"
   },
   "private": true,
   "dependencies": {
@@ -25,6 +25,7 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "@analogjs/vite-plugin-angular": "^4.0.0",
     "@angular-devkit/build-angular": "^18.0.0",
     "@angular/cli": "^18.0.0",
     "@angular/compiler-cli": "^18.0.0",
@@ -32,6 +33,7 @@
     "@types/node": "^18.18.0",
     "@types/three": "^0.160.0",
     "firebase-tools": "^13.0.0",
-    "typescript": "~5.4.2"
+    "typescript": "~5.4.2",
+    "vite": "^5.0.0"
   }
 }
