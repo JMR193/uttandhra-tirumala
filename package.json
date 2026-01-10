@@ -5,7 +5,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "echo 'Build skipped in Applet environment'",
+    "build": "mkdir -p dist/uttarandhra-tirupati && cp index.html dist/uttarandhra-tirupati/index.html",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "deploy": "ng build && firebase deploy"

@@ -1,5 +1,5 @@
 
-import { Component, inject, signal, ElementRef, ViewChild, AfterViewInit, effect, computed } from '@angular/core';
+import { Component, inject, signal, ElementRef, ViewChild, AfterViewInit, effect, computed, OnDestroy } from '@angular/core';
 import { TempleService, Donation, SiteConfig, Task } from '../services/temple.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -117,7 +117,7 @@ import * as d3 from 'd3';
     </div>
   `
 })
-export class AdminComponent {
+export class AdminComponent implements OnDestroy {
   templeService = inject(TempleService);
   
   // Login State
@@ -128,6 +128,7 @@ export class AdminComponent {
   
   // Heatmap Mock Data
   heatmapData: any[] = [];
+  private heatmapInterval: any;
 
   constructor() {
       // Generate 20 compartments
@@ -136,12 +137,18 @@ export class AdminComponent {
       }
       
       // Live update simulation
-      setInterval(() => {
+      this.heatmapInterval = setInterval(() => {
           this.heatmapData = this.heatmapData.map(c => ({
               ...c,
               occupancy: Math.max(0, Math.min(100, c.occupancy + (Math.random() * 20 - 10)))
           }));
       }, 2000);
+  }
+
+  ngOnDestroy() {
+    if (this.heatmapInterval) {
+      clearInterval(this.heatmapInterval);
+    }
   }
 
   handleLogin() {

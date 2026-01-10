@@ -144,10 +144,32 @@ export class DigitalDarshanComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.animationId) cancelAnimationFrame(this.animationId);
+    
+    // Dispose of Three.js resources to prevent memory leaks
+    if (this.scene) {
+      this.scene.traverse((object: any) => {
+        if (object.isMesh) {
+          if (object.geometry) object.geometry.dispose();
+          if (object.material) {
+             if (Array.isArray(object.material)) {
+                object.material.forEach((m: any) => this.disposeMaterial(m));
+             } else {
+                this.disposeMaterial(object.material);
+             }
+          }
+        }
+      });
+    }
+
     if (this.renderer) {
       this.renderer.dispose();
       this.renderer.forceContextLoss();
     }
+  }
+
+  private disposeMaterial(material: any) {
+     if (material.map) material.map.dispose();
+     material.dispose();
   }
 
   setView(view: 'face' | 'feet' | 'full') {
