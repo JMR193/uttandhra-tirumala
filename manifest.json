@@ -1,0 +1,54 @@
+{
+  "name": "Uttarandhra Tirupati Devasthanam",
+  "short_name": "UT Temple",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fafaf9",
+  "theme_color": "#7f1d1d",
+  "orientation": "portrait-primary",
+  "description": "Official App of Shri Venkateswara Swamy Temple, Pendurthi.",
+  "icons": [
+    {
+      "src": "https://opwncdejpaeltylplvhk.supabase.co/storage/v1/object/public/images/logo/cb3d423f-ec99-48a4-b070-adf5c21ddd76.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://opwncdejpaeltylplvhk.supabase.co/storage/v1/object/public/images/logo/cb3d423f-ec99-48a4-b070-adf5c21ddd76.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Book Darshan",
+      "short_name": "Booking",
+      "description": "Book Special Entry Darshan",
+      "url": "/#/booking",
+      "icons": [{ "src": "https://opwncdejpaeltylplvhk.supabase.co/storage/v1/object/public/images/logo/cb3d423f-ec99-48a4-b070-adf5c21ddd76.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "E-Hundi",
+      "short_name": "Donate",
+      "description": "Make a Donation",
+      "url": "/#/e-hundi",
+      "icons": [{ "src": "https://opwncdejpaeltylplvhk.supabase.co/storage/v1/object/public/images/logo/cb3d423f-ec99-48a4-b070-adf5c21ddd76.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://picsum.photos/id/10/400/800",
+      "sizes": "400x800",
+      "type": "image/jpg",
+      "form_factor": "narrow",
+      "label": "Home Screen"
+    },
+    {
+      "src": "https://picsum.photos/id/16/800/600",
+      "sizes": "800x600",
+      "type": "image/jpg",
+      "form_factor": "wide",
+      "label": "Desktop Dashboard"
+    }
+  ]
+}

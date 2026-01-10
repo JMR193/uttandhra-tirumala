@@ -1,3 +1,4 @@
+
 import { Component, inject, computed, signal } from '@angular/core';
 import { TempleService } from '../services/temple.service';
 import { RouterLink } from '@angular/router';
@@ -28,7 +29,7 @@ import { CommonModule } from '@angular/common';
     <div class="relative h-[400px] md:h-[550px] w-full overflow-hidden bg-stone-900 group">
       <img src="https://yt3.googleusercontent.com/7y8KChJI_huixiWRFJGfK9-t5E3d7LMvZQN7QdJ2VHdTn8MIwFIH9Mohj0mKmaSGzWlns_ujRQ=w1707-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj" 
            class="w-full h-full object-cover opacity-90 transition-transform duration-[10s] ease-linear group-hover:scale-110" 
-           fetchpriority="high" loading="eager">
+           fetchpriority="high" loading="eager" alt="Temple Banner">
       
       <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex items-center justify-center text-center">
          <div class="container mx-auto px-6 md:px-12 animate-fade-in-up">
@@ -147,164 +148,106 @@ import { CommonModule } from '@angular/common';
                        <h4 class="font-bold text-[#800000] text-lg mb-2 group-hover:text-amber-700 transition-colors">{{ item.title }}</h4>
                        <div class="text-stone-600 text-sm leading-relaxed prose prose-sm max-w-none" [innerHTML]="item.content"></div>
                        @if (item.attachmentUrl) {
-                          <a [href]="item.attachmentUrl" target="_blank" class="inline-flex items-center gap-1 text-xs text-blue-600 font-bold mt-3 hover:underline bg-blue-50 px-2 py-1 rounded">
+                          <a [href]="item.attachmentUrl" target="_blank" class="inline-flex items-center gap-1 mt-3 text-xs bg-stone-100 px-3 py-1.5 rounded-full hover:bg-stone-200 font-bold text-stone-600">
                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" /></svg>
-                             Download Attachment
+                             View Attachment
                           </a>
                        }
                     </div>
                  </div>
                }
-               @if (templeService.news().length === 0) {
-                 <p class="text-stone-500 italic p-4 bg-stone-50 rounded">No recent updates available.</p>
-               }
              </div>
           </div>
 
-          <!-- Right Sidebar Column (Panchangam + Media) -->
-          <div class="md:w-1/3 flex flex-col gap-8">
+          <!-- Sidebar: Daily Panchangam & Quick Info -->
+          <div class="md:w-1/3 space-y-8">
              
-             <!-- Panchangam Widget -->
-             <div class="bg-white rounded-lg shadow-md border border-amber-200 overflow-hidden">
-                <div class="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-3 font-bold uppercase text-sm flex justify-between items-center shadow-md">
-                   <span class="flex items-center gap-2">
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
-                     Daily Panchangam
-                   </span>
-                   <span class="text-[10px] bg-red-900 text-amber-100 px-2 py-0.5 rounded shadow">{{ templeService.dailyPanchangam().date.split(',')[0] }}</span>
+             <!-- Daily Panchangam -->
+             <div class="bg-orange-50 rounded-xl shadow-lg border border-amber-200 overflow-hidden">
+                <div class="bg-[#800000] text-amber-100 p-4 flex justify-between items-center">
+                   <h3 class="font-serif font-bold text-lg">Daily Panchangam</h3>
+                   <span class="text-xs bg-red-800 px-2 py-1 rounded">{{ templeService.dailyPanchangam().date }}</span>
                 </div>
                 
-                <div class="p-4 bg-orange-50/50">
-                    <p class="text-center font-serif font-bold text-lg text-[#800000] mb-4 leading-tight border-b border-amber-200 pb-3">{{ templeService.dailyPanchangam().date }}</p>
-                    
-                    <div class="grid grid-cols-2 gap-4 text-sm text-stone-700 mb-4">
-                       <div class="flex flex-col items-center bg-white p-3 rounded border border-amber-100 shadow-sm">
-                          <span class="text-[10px] text-stone-500 font-bold uppercase tracking-wider mb-1">Tithi</span>
-                          <span class="font-bold text-base text-stone-900 text-center leading-tight">{{ templeService.dailyPanchangam().tithi }}</span>
-                       </div>
-                       <div class="flex flex-col items-center bg-white p-3 rounded border border-amber-100 shadow-sm">
-                          <span class="text-[10px] text-stone-500 font-bold uppercase tracking-wider mb-1">Nakshatra</span>
-                          <span class="font-bold text-base text-stone-900 text-center leading-tight">{{ templeService.dailyPanchangam().nakshatra }}</span>
-                       </div>
-                    </div>
-
-                    <div class="space-y-2 text-sm mb-4">
-                       <div class="flex justify-between items-center bg-white p-2 rounded border border-stone-100 shadow-sm">
-                          <span class="text-stone-600 font-semibold text-xs uppercase flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-stone-400"></span>Rahu Kalam</span>
-                          <span class="font-mono font-bold text-red-800">{{ templeService.dailyPanchangam().rahuKalam }}</span>
-                       </div>
-                       <div class="flex justify-between items-center bg-white p-2 rounded border border-stone-100 shadow-sm">
-                          <span class="text-stone-600 font-semibold text-xs uppercase flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-stone-400"></span>Yamagandam</span>
-                          <span class="font-mono font-bold text-red-800">{{ templeService.dailyPanchangam().yamagandam }}</span>
-                       </div>
-                    </div>
-                    
-                    <div class="flex justify-around mt-2 text-xs font-bold text-amber-800 bg-amber-100 py-2 rounded">
-                       <span class="flex items-center gap-1">☀️ Sunrise: {{ templeService.dailyPanchangam().sunrise }}</span>
-                       <span class="flex items-center gap-1">🌙 Sunset: {{ templeService.dailyPanchangam().sunset }}</span>
-                    </div>
-
-                    @if (templeService.siteConfig().panchangamImageUrl) {
-                      <div class="mt-4 pt-4 border-t border-amber-200 text-center">
-                         <span class="text-xs font-bold text-amber-800 uppercase block mb-2">Today's Sheet</span>
-                         <div class="relative group cursor-pointer overflow-hidden rounded border border-amber-300 shadow-sm">
-                            <img [src]="templeService.siteConfig().panchangamImageUrl" class="w-full h-auto transform group-hover:scale-105 transition-transform duration-500">
-                            <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                               <a [href]="templeService.siteConfig().panchangamImageUrl" target="_blank" class="text-white font-bold text-xs uppercase border border-white px-3 py-1 rounded hover:bg-white hover:text-black transition-colors">View Full</a>
-                            </div>
-                         </div>
-                      </div>
-                    }
-                </div>
-             </div>
-
-             <!-- Official Media Channels -->
-             <div class="rounded-lg shadow-md overflow-hidden bg-white border border-stone-200">
-                <div class="bg-[#800000] text-white p-3 font-bold uppercase text-sm border-b border-red-900">
-                   Official Media
-                </div>
-                <div class="p-4 bg-white">
-                   <div class="space-y-4">
-                      @for (video of recentVideos(); track video.id) {
-                         <a [href]="video.url" target="_blank" class="flex gap-3 group items-center">
-                            <div class="w-24 h-16 bg-black flex-shrink-0 relative overflow-hidden rounded shadow-sm border border-stone-200">
-                               <img [src]="getThumbnail(video.url)" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
-                               <div class="absolute inset-0 flex items-center justify-center">
-                                  <div class="w-6 h-6 bg-red-600/90 rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform"><svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-                               </div>
-                            </div>
-                            <div>
-                               <p class="text-xs font-bold text-stone-800 line-clamp-2 group-hover:text-[#800000] transition-colors leading-tight">{{ video.caption }}</p>
-                               <p class="text-[10px] text-stone-500 mt-1">Watch on YouTube</p>
-                            </div>
-                         </a>
-                      }
+                @if (templeService.siteConfig().panchangamImageUrl) {
+                   <div class="p-4 bg-white border-b border-stone-200">
+                      <img [src]="templeService.siteConfig().panchangamImageUrl" class="w-full rounded shadow-sm hover:scale-105 transition-transform cursor-pointer" alt="Today's Panchangam Sheet">
                    </div>
-                   
-                   <a [href]="templeService.siteConfig().liveLink" target="_blank" class="block w-full text-center mt-5 bg-red-700 hover:bg-red-800 text-white font-bold py-2 rounded text-sm transition-colors shadow-sm uppercase tracking-wide">
-                      SVBC Channel
-                   </a>
+                }
 
-                   <!-- WhatsApp Button -->
-                   @if (templeService.siteConfig().whatsappChannel) {
-                       <a [href]="templeService.siteConfig().whatsappChannel" target="_blank" class="mt-4 block w-full bg-[#25D366] hover:bg-[#20b85c] text-white font-bold py-3 rounded-lg text-center transition-colors shadow-md flex items-center justify-center gap-2 text-sm">
-                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/></svg>
-                           Follow on WhatsApp Channel
-                       </a>
-                   }
+                <div class="p-4 space-y-3 text-sm">
+                   <div class="flex justify-between border-b border-orange-100 pb-2">
+                      <span class="text-stone-500 font-bold">Tithi</span>
+                      <span class="text-[#800000] font-bold">{{ templeService.dailyPanchangam().tithi }}</span>
+                   </div>
+                   <div class="flex justify-between border-b border-orange-100 pb-2">
+                      <span class="text-stone-500 font-bold">Nakshatram</span>
+                      <span class="text-[#800000] font-bold">{{ templeService.dailyPanchangam().nakshatra }}</span>
+                   </div>
+                   <div class="flex justify-between border-b border-orange-100 pb-2">
+                      <span class="text-stone-500 font-bold">Rahu Kalam</span>
+                      <span class="text-stone-800">{{ templeService.dailyPanchangam().rahuKalam }}</span>
+                   </div>
+                   <div class="flex justify-between border-b border-orange-100 pb-2">
+                      <span class="text-stone-500 font-bold">Yamagandam</span>
+                      <span class="text-stone-800">{{ templeService.dailyPanchangam().yamagandam }}</span>
+                   </div>
+                   <div class="grid grid-cols-2 gap-4 mt-2">
+                      <div class="bg-white p-2 rounded text-center border border-orange-100">
+                         <span class="block text-xs text-stone-400 uppercase">Sunrise</span>
+                         <span class="font-bold text-amber-700">{{ templeService.dailyPanchangam().sunrise }}</span>
+                      </div>
+                      <div class="bg-white p-2 rounded text-center border border-orange-100">
+                         <span class="block text-xs text-stone-400 uppercase">Sunset</span>
+                         <span class="font-bold text-indigo-900">{{ templeService.dailyPanchangam().sunset }}</span>
+                      </div>
+                   </div>
                 </div>
              </div>
-          </div>
 
+             <!-- Social Media Connect -->
+             <div class="bg-white p-6 rounded-xl shadow-lg border border-stone-200 text-center relative overflow-hidden">
+                <h4 class="text-[#800000] font-bold text-lg uppercase tracking-wide mb-4">Stay Connected</h4>
+                
+                <div class="space-y-4">
+                  <a href="https://www.youtube.com/@ramanujampendurthi1012" target="_blank" class="flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg transition-colors shadow-md group">
+                    <div class="bg-white p-1 rounded-full text-red-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                    </div>
+                    <div class="text-left">
+                      <p class="text-[10px] opacity-80 uppercase font-bold">Subscribe on</p>
+                      <p class="font-bold leading-none">YouTube</p>
+                    </div>
+                  </a>
+
+                  <a href="https://whatsapp.com/channel/0029Vap96ByFnSzG0KocMq1y" target="_blank" class="flex items-center gap-3 bg-[#25D366] hover:bg-[#20bd5a] text-white p-3 rounded-lg transition-colors shadow-md group">
+                     <div class="bg-white p-1 rounded-full text-[#25D366]">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                    </div>
+                    <div class="text-left">
+                      <p class="text-[10px] opacity-80 uppercase font-bold">Follow Channel</p>
+                      <p class="font-bold leading-none">WhatsApp</p>
+                    </div>
+                  </a>
+                </div>
+             </div>
+
+          </div>
         </div>
       </div>
     </div>
-    
-    <style>
-      @keyframes marquee {
-        0% { transform: translateX(100%); }
-        100% { transform: translateX(-100%); }
-      }
-      .animate-marquee {
-        animation: marquee 35s linear infinite;
-        display: inline-block;
-        padding-left: 100%; 
-      }
-    </style>
   `
 })
 export class HomeComponent {
   templeService = inject(TempleService);
 
-  recentVideos = signal([
-    { id: 1, url: 'https://www.youtube.com/watch?v=xcJtL7QggTI', caption: 'Morning Suprabhatam Seva' },
-    { id: 2, url: 'https://www.youtube.com/watch?v=j7W4_3nQtNg', caption: 'Weekly Kalyanotsavam' },
-    { id: 3, url: 'https://www.youtube.com/watch?v=ysz5S6P_bsU', caption: 'Vaikuntha Ekadasi Special' }
-  ]);
-
   getMonth(dateStr: string): string {
     const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return 'JAN';
-    return date.toLocaleString('en-US', { month: 'short' });
+    return date.toLocaleString('default', { month: 'short' });
   }
 
   getDay(dateStr: string): string {
     const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return '01';
-    return date.getDate().toString().padStart(2, '0');
-  }
-
-  getThumbnail(url: string): string {
-    let videoId = '';
-    if (url.includes('youtube.com/watch?v=')) {
-      videoId = url.split('v=')[1].split('&')[0];
-    } else if (url.includes('youtu.be/')) {
-      videoId = url.split('youtu.be/')[1].split('?')[0];
-    }
-    
-    if (videoId) {
-      return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-    }
-    return 'https://picsum.photos/200/150'; // Fallback
+    return date.getDate().toString();
   }
 }

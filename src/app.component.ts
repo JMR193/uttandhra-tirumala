@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, inject, signal, ViewChild, ElementRef } from '@angular/core';
+
+import { Component, ChangeDetectionStrategy, inject, signal, ViewChild, ElementRef, AfterViewInit, effect } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { TempleService } from './services/temple.service';
 
@@ -8,12 +9,17 @@ import { TempleService } from './services/temple.service';
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="min-h-screen flex flex-col bg-stone-50">
+    <div class="min-h-screen flex flex-col transition-colors duration-1000"
+         [class.bg-stone-50]="!isNightMode()" 
+         [class.bg-slate-900]="isNightMode()">
+      
       <!-- Background Audio Element -->
       <audio #bgMusic loop src="https://www.tirumala.org/music/slogan.mp3"></audio>
 
       <!-- Top Bar -->
-      <div class="bg-red-900 text-amber-100 text-sm py-2 px-4 flex justify-between items-center transition-colors duration-500" [class.bg-red-950]="isMusicPlaying()">
+      <div class="text-sm py-2 px-4 flex justify-between items-center transition-colors duration-500 relative z-50"
+           [class.bg-red-900]="!isNightMode()" [class.text-amber-100]="!isNightMode()"
+           [class.bg-slate-950]="isNightMode()" [class.text-blue-100]="isNightMode()">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
           
           <!-- Left Side: Mantra & Music Toggle -->
@@ -30,34 +36,42 @@ import { TempleService } from './services/temple.service';
                      <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
                    </div>
                    <span class="text-xs font-bold text-amber-400 animate-pulse">PLAYING</span>
-                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-amber-400">
-                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
-                   </svg>
                } @else {
-                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-stone-400 group-hover:text-white">
-                     <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
-                   </svg>
-                   <span class="text-xs font-bold text-stone-400 group-hover:text-white">Play Chant</span>
+                   <span class="text-xs font-bold opacity-80 group-hover:text-white">Play Chant</span>
                }
             </button>
           </div>
 
-          <div class="flex gap-4">
-            <a [href]="'tel:' + templeService.siteConfig().contactPhone" class="hover:text-white transition-colors">Help Desk: {{ templeService.siteConfig().contactPhone }}</a>
-            <span>|</span>
-            <a [href]="templeService.siteConfig().liveLink" target="_blank" class="hover:text-white transition-colors animate-pulse font-bold text-amber-400">Live Darshan</a>
-            <span>|</span>
+          <div class="flex gap-4 items-center">
+            @if (deferredPrompt) {
+              <button (click)="installPwa()" class="hidden md:flex items-center gap-1 bg-amber-600 hover:bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold transition-all animate-pulse">
+                Install App
+              </button>
+            }
+            <a routerLink="/digital-darshan" class="font-bold text-amber-400 hover:text-white animate-pulse">3D Digital Darshan</a>
+            <span class="hidden md:inline">|</span>
             @if (templeService.isAdmin()) {
-              <button (click)="templeService.logout()" class="font-bold text-amber-400 hover:text-amber-200">Logout (Admin)</button>
+              <button (click)="templeService.logout()" class="font-bold hover:text-white text-xs md:text-sm">Logout</button>
             } @else {
-              <a routerLink="/admin" class="hover:text-white transition-colors">Admin Login</a>
+              <a routerLink="/admin" class="hover:text-white transition-colors text-xs md:text-sm">Admin</a>
             }
           </div>
         </div>
       </div>
 
+      <!-- iOS Install Hint Modal -->
+      @if (showIosHint) {
+         <div class="fixed inset-0 bg-black/80 z-[100] flex items-end justify-center pb-8 animate-fade-in" (click)="showIosHint = false">
+            <div class="bg-white rounded-xl p-6 max-w-sm mx-4 relative shadow-2xl animate-fade-in-up" (click)="$event.stopPropagation()">
+               <h3 class="text-lg font-bold text-red-900 mb-2">Install App on iOS</h3>
+               <p class="text-sm text-stone-600 mb-4">Install this app on your iPhone for the best experience.</p>
+            </div>
+         </div>
+      }
+
       <!-- Header / Navigation -->
-      <header class="bg-white shadow-md sticky top-0 z-50 border-b-4 border-amber-500">
+      <header class="shadow-md sticky top-0 z-40 border-b-4 border-amber-500 transition-colors duration-500"
+              [class.bg-white]="!isNightMode()" [class.bg-slate-900]="isNightMode()">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
           <!-- Logo Area -->
           <div class="flex items-center gap-4 cursor-pointer" routerLink="/">
@@ -65,57 +79,33 @@ import { TempleService } from './services/temple.service';
                <img [src]="templeService.siteConfig().logoUrl" alt="Logo" class="object-cover w-full h-full opacity-90" />
             </div>
             <div>
-              <h1 class="text-xl md:text-2xl font-bold text-red-900 leading-tight">{{ templeService.siteConfig().templeName }}</h1>
-              <p class="text-xs md:text-sm text-stone-600 font-semibold tracking-wide">{{ templeService.siteConfig().subTitle }}</p>
+              <h1 class="text-xl md:text-2xl font-bold leading-tight transition-colors" [class.text-red-900]="!isNightMode()" [class.text-amber-500]="isNightMode()">{{ templeService.siteConfig().templeName }}</h1>
+              <p class="text-xs md:text-sm font-semibold tracking-wide transition-colors" [class.text-stone-600]="!isNightMode()" [class.text-stone-400]="isNightMode()">{{ templeService.siteConfig().subTitle }}</p>
             </div>
           </div>
 
           <!-- Desktop Nav -->
           <nav class="hidden lg:flex gap-1">
-            <a routerLink="/" routerLinkActive="bg-red-50 text-red-800" [routerLinkActiveOptions]="{exact: true}" class="px-3 py-2 rounded-lg font-bold text-stone-700 hover:bg-red-50 hover:text-red-800 transition-colors">Home</a>
-            <a routerLink="/history" routerLinkActive="bg-red-50 text-red-800" class="px-3 py-2 rounded-lg font-bold text-stone-700 hover:bg-red-50 hover:text-red-800 transition-colors">History</a>
-            <a routerLink="/e-hundi" routerLinkActive="bg-red-50 text-red-800" class="px-3 py-2 rounded-lg font-bold text-stone-700 hover:bg-red-50 hover:text-red-800 transition-colors">E-Hundi</a>
-            <a routerLink="/library" routerLinkActive="bg-red-50 text-red-800" class="px-3 py-2 rounded-lg font-bold text-stone-700 hover:bg-red-50 hover:text-red-800 transition-colors">Library</a>
-            <a routerLink="/gallery" routerLinkActive="bg-red-50 text-red-800" class="px-3 py-2 rounded-lg font-bold text-stone-700 hover:bg-red-50 hover:text-red-800 transition-colors">Gallery</a>
-            <a routerLink="/feedback" routerLinkActive="bg-red-50 text-red-800" class="px-3 py-2 rounded-lg font-bold text-stone-700 hover:bg-red-50 hover:text-red-800 transition-colors">Feedback</a>
-            @if (templeService.isAdmin()) {
-              <a routerLink="/admin" routerLinkActive="bg-red-50 text-red-800" class="px-3 py-2 rounded-lg font-bold text-amber-700 border border-amber-200 bg-amber-50">CMS</a>
-            }
+             <a routerLink="/" routerLinkActive="bg-red-50 text-red-800" [routerLinkActiveOptions]="{exact: true}" class="px-3 py-2 rounded-lg font-bold transition-colors" [class.text-stone-700]="!isNightMode()" [class.text-stone-300]="isNightMode()">Home</a>
+             <a routerLink="/history" routerLinkActive="bg-red-50 text-red-800" class="px-3 py-2 rounded-lg font-bold transition-colors" [class.text-stone-700]="!isNightMode()" [class.text-stone-300]="isNightMode()">History</a>
+             <a routerLink="/booking" routerLinkActive="bg-red-50 text-red-800" class="px-3 py-2 rounded-lg font-bold transition-colors" [class.text-stone-700]="!isNightMode()" [class.text-stone-300]="isNightMode()">Booking</a>
+             <a routerLink="/e-hundi" routerLinkActive="bg-red-50 text-red-800" class="px-3 py-2 rounded-lg font-bold transition-colors" [class.text-stone-700]="!isNightMode()" [class.text-stone-300]="isNightMode()">E-Hundi</a>
+             <a routerLink="/library" routerLinkActive="bg-red-50 text-red-800" class="px-3 py-2 rounded-lg font-bold transition-colors" [class.text-stone-700]="!isNightMode()" [class.text-stone-300]="isNightMode()">Library</a>
+             <a routerLink="/gallery" routerLinkActive="bg-red-50 text-red-800" class="px-3 py-2 rounded-lg font-bold transition-colors" [class.text-stone-700]="!isNightMode()" [class.text-stone-300]="isNightMode()">Gallery</a>
+             @if (templeService.isAdmin()) {
+               <a routerLink="/admin" routerLinkActive="bg-red-50 text-red-800" class="px-3 py-2 rounded-lg font-bold text-amber-500 border border-amber-200 bg-amber-900/10">CMS</a>
+             }
           </nav>
-
-          <!-- Mobile Menu Button (Simple) -->
-          <button class="lg:hidden text-red-900 p-2" (click)="toggleMobileMenu()">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-          </button>
         </div>
-
-        <!-- Mobile Nav Drawer (Basic implementation) -->
-        @if (isMobileMenuOpen()) {
-          <div class="lg:hidden bg-stone-100 border-t border-stone-200 animate-fade-in">
-            <nav class="flex flex-col p-4 gap-2">
-              <a (click)="closeMobileMenu()" routerLink="/" class="px-4 py-3 rounded-md bg-white shadow-sm font-semibold text-stone-800 hover:bg-red-50">Home</a>
-              <a (click)="closeMobileMenu()" routerLink="/history" class="px-4 py-3 rounded-md bg-white shadow-sm font-semibold text-stone-800 hover:bg-red-50">History & Info</a>
-              <a (click)="closeMobileMenu()" routerLink="/e-hundi" class="px-4 py-3 rounded-md bg-white shadow-sm font-semibold text-stone-800 hover:bg-red-50">E-Hundi</a>
-              <a (click)="closeMobileMenu()" routerLink="/library" class="px-4 py-3 rounded-md bg-white shadow-sm font-semibold text-stone-800 hover:bg-red-50">Library</a>
-              <a (click)="closeMobileMenu()" routerLink="/gallery" class="px-4 py-3 rounded-md bg-white shadow-sm font-semibold text-stone-800 hover:bg-red-50">Gallery</a>
-              <a (click)="closeMobileMenu()" routerLink="/feedback" class="px-4 py-3 rounded-md bg-white shadow-sm font-semibold text-stone-800 hover:bg-red-50">Feedback</a>
-              @if (templeService.isAdmin()) {
-                 <a (click)="closeMobileMenu()" routerLink="/admin" class="px-4 py-3 rounded-md bg-amber-100 shadow-sm font-semibold text-amber-900">CMS Dashboard</a>
-              }
-            </nav>
-          </div>
-        }
       </header>
 
       <!-- Main Content -->
-      <main class="flex-grow">
+      <main class="flex-grow relative z-10">
         <router-outlet></router-outlet>
       </main>
 
       <!-- Footer -->
-      <footer class="bg-stone-900 text-stone-300 py-12 border-t-8 border-red-900">
+      <footer class="bg-stone-900 text-stone-300 py-12 border-t-8 border-red-900 relative z-20">
         <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 class="text-xl font-bold text-amber-500 mb-4 font-serif">Contact Us</h3>
@@ -128,6 +118,7 @@ import { TempleService } from './services/temple.service';
             <h3 class="text-xl font-bold text-amber-500 mb-4 font-serif">Quick Links</h3>
             <ul class="space-y-2">
               <li><a routerLink="/history" class="hover:text-amber-400 transition-colors">History & Timings</a></li>
+              <li><a routerLink="/booking" class="hover:text-amber-400 transition-colors">Darshan Booking</a></li>
               <li><a routerLink="/e-hundi" class="hover:text-amber-400 transition-colors">E-Hundi Donation</a></li>
               <li><a routerLink="/library" class="hover:text-amber-400 transition-colors">Spiritual Library</a></li>
               <li><a routerLink="/gallery" class="hover:text-amber-400 transition-colors">Photo Gallery</a></li>
@@ -146,19 +137,70 @@ import { TempleService } from './services/temple.service';
           </div>
         </div>
         <div class="text-center mt-12 pt-8 border-t border-stone-800 text-sm text-stone-500">
-          <p>&copy; 2026 {{ templeService.siteConfig().templeName }}. All Rights Reserved.</p>
+          <p class="mb-4">&copy; 2026 {{ templeService.siteConfig().templeName }}. All Rights Reserved.</p>
+          
+          <div class="flex flex-col items-center gap-2">
+             <p class="flex items-center gap-2 bg-stone-800 px-3 py-1 rounded-full border border-stone-700 shadow-inner">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="text-stone-400 uppercase text-[10px] tracking-widest">Live Visitors:</span>
+                <span class="text-amber-400 font-mono font-bold">{{ visitorCount }}</span>
+             </p>
+             <p class="text-xs text-stone-600 font-serif italic opacity-70">Made with love by JMR</p>
+          </div>
         </div>
       </footer>
     </div>
   `
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
   templeService = inject(TempleService);
   
   @ViewChild('bgMusic') bgMusicRef!: ElementRef<HTMLAudioElement>;
   
   isMusicPlaying = signal<boolean>(false);
   isMobileMenuOpen = signal<boolean>(false);
+  
+  deferredPrompt: any = null;
+  showIosHint = false;
+  visitorCount = 1245089 + Math.floor(Math.random() * 50);
+
+  constructor() {
+    effect(() => {
+       // React to theme changes if needed
+    });
+  }
+
+  isNightMode() {
+    return this.templeService.timeOfDay() === 'night' || this.templeService.timeOfDay() === 'evening';
+  }
+
+  ngAfterViewInit() {
+    // PWA Handlers
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      this.deferredPrompt = e;
+    });
+
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
+    if (isIos && !isStandalone) {
+       setTimeout(() => this.showIosHint = true, 3000);
+    }
+
+    // Initialize Divine Particles
+    this.initParticles();
+  }
+
+  installPwa() {
+    if (this.deferredPrompt) {
+      this.deferredPrompt.prompt();
+      this.deferredPrompt.userChoice.then((choiceResult: any) => {
+        if (choiceResult.outcome === 'accepted') {
+          this.deferredPrompt = null;
+        }
+      });
+    }
+  }
 
   toggleMusic() {
     const audio = this.bgMusicRef.nativeElement;
@@ -177,5 +219,76 @@ export class AppComponent {
 
   closeMobileMenu() {
     this.isMobileMenuOpen.set(false);
+  }
+
+  // --- Atmospheric Physics (Particles) ---
+  initParticles() {
+    const canvas = document.getElementById('divine-particles') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let particles: any[] = [];
+    const particleCount = 60;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+      x: number;
+      y: number;
+      size: number;
+      speedX: number;
+      speedY: number;
+      opacity: number;
+
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = Math.random() * 0.5 - 0.25;
+        this.speedY = Math.random() * 0.5 - 0.25;
+        this.opacity = Math.random() * 0.5;
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        // Wrap around screen
+        if (this.x > canvas.width) this.x = 0;
+        if (this.x < 0) this.x = canvas.width;
+        if (this.y > canvas.height) this.y = 0;
+        if (this.y < 0) this.y = canvas.height;
+      }
+
+      draw() {
+        if (!ctx) return;
+        ctx.fillStyle = `rgba(255, 215, 0, ${this.opacity})`; // Gold color
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw();
+      }
+      requestAnimationFrame(animate);
+    };
+
+    animate();
   }
 }

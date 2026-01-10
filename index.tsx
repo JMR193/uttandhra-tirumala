@@ -12,6 +12,7 @@ import { FeedbackComponent } from './src/components/feedback.component';
 import { LibraryComponent } from './src/components/library.component';
 import { HistoryComponent } from './src/components/history.component';
 import { BookingComponent } from './src/components/booking.component';
+import { DigitalDarshanComponent } from './src/components/digital-darshan.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -22,6 +23,7 @@ const routes: Routes = [
   { path: 'library', component: LibraryComponent },
   { path: 'feedback', component: FeedbackComponent },
   { path: 'booking', component: BookingComponent },
+  { path: 'digital-darshan', component: DigitalDarshanComponent },
   { path: '**', redirectTo: '' }
 ];
 

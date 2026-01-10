@@ -1,5 +1,6 @@
+
 import { Component, inject } from '@angular/core';
-import { TempleService } from '../services/temple.service';
+import { TempleService, LibraryItem } from '../services/temple.service';
 
 @Component({
   selector: 'app-library',
@@ -25,7 +26,12 @@ import { TempleService } from '../services/temple.service';
               @if (item.type === 'audio') {
                 <div class="bg-white rounded-lg shadow p-6 border border-amber-100 flex flex-col">
                   <div class="flex-grow">
-                     <h4 class="font-bold text-lg text-stone-800 mb-2">{{ item.title }}</h4>
+                     <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-lg text-stone-800 mb-2">{{ item.title }}</h4>
+                        <button (click)="cacheAudio(item.url)" class="text-stone-400 hover:text-green-600" title="Download for Offline">
+                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M12 9.75V1.5m0 0 3 3m-3-3-3 3" /></svg>
+                        </button>
+                     </div>
                      <p class="text-sm text-stone-600 mb-4">{{ item.description }}</p>
                   </div>
                   <audio controls class="w-full mt-4">
@@ -68,4 +74,11 @@ import { TempleService } from '../services/temple.service';
 })
 export class LibraryComponent {
   templeService = inject(TempleService);
+
+  cacheAudio(url: string) {
+    // By fetching it, the Service Worker will intercept and cache it
+    fetch(url)
+      .then(() => alert('Audio cached for offline listening!'))
+      .catch(() => alert('Could not cache. Check internet connection.'));
+  }
 }

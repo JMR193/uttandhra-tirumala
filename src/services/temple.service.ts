@@ -132,6 +132,10 @@ export class TempleService {
   isAdmin = signal<boolean>(false);
   currentUser = signal<any>(null);
   
+  // App Appearance State (Temple OS)
+  festivalMode = signal<boolean>(false);
+  timeOfDay = signal<'morning' | 'afternoon' | 'evening' | 'night'>('morning');
+  
   // 2FA Mock State
   private _pending2FASession = false;
   
@@ -161,6 +165,7 @@ export class TempleService {
 
   // Content State
   flashNews = signal<string>("Om Namo Venkatesaya! Annual Brahmotsavams start from next week. Please book your darshan slots.");
+  darshanWaitTime = signal<string>("2 Hours"); // Default wait time
   
   news = signal<NewsItem[]>([
     { id: 1, title: 'Special Darshan Tickets Available', date: '2023-10-25', content: 'Online booking for special darshan for the upcoming festival is now open.', attachmentUrl: '' },
@@ -204,6 +209,8 @@ export class TempleService {
   dailyPanchangam = computed(() => this.calculatePanchangam());
 
   constructor() {
+    this.calculateTimeOfDay();
+    
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey, {
       realtime: {
         params: {
@@ -220,6 +227,18 @@ export class TempleService {
       console.warn('Backend not configured. Running in Mock Mode.');
       this.realtimeStatus.set('DISCONNECTED');
     }
+  }
+
+  private calculateTimeOfDay() {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) this.timeOfDay.set('morning');
+    else if (hour >= 12 && hour < 17) this.timeOfDay.set('afternoon');
+    else if (hour >= 17 && hour < 20) this.timeOfDay.set('evening');
+    else this.timeOfDay.set('night');
+  }
+
+  setFestivalMode(enabled: boolean) {
+    this.festivalMode.set(enabled);
   }
 
   private async initAuth() {
@@ -798,6 +817,10 @@ export class TempleService {
 
   updateFlashNews(text: string) {
     this.flashNews.set(text);
+  }
+
+  updateDarshanWaitTime(time: string) {
+    this.darshanWaitTime.set(time);
   }
   
   updateSiteConfig(newConfig: SiteConfig) {

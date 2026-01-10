@@ -1,10 +1,26 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Uttarandhra Tirupati - Shri Venkateswara Swamy Temple</title>
+  
+  <!-- PWA Manifest & Meta -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#7f1d1d">
+  <meta name="description" content="Official PWA of Uttarandhra Tirupati Temple. Book Darshan, Donate, and Listen to Chants Offline.">
+  
+  <!-- iOS Support -->
+  <link rel="apple-touch-icon" href="https://opwncdejpaeltylplvhk.supabase.co/storage/v1/object/public/images/logo/cb3d423f-ec99-48a4-b070-adf5c21ddd76.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="UT Temple">
+
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js for 3D Digital Darshan -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
@@ -31,6 +47,17 @@
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
+    
+    /* Divine Particles Canvas */
+    #divine-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
   </style>
 <script type="importmap">
 {
@@ -54,6 +81,16 @@
 </script>
 </head>
 <body class="bg-stone-50 text-stone-900 overflow-x-hidden">
+  <canvas id="divine-particles"></canvas>
   <app-root></app-root>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => console.log('SW Registered!', reg.scope))
+          .catch(err => console.log('SW Fail', err));
+      });
+    }
+  </script>
 </body>
 </html>
