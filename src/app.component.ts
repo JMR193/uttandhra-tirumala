@@ -1,12 +1,12 @@
-
 import { Component, ChangeDetectionStrategy, inject, signal, ViewChild, ElementRef, AfterViewInit, effect, OnDestroy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { TempleService } from './services/temple.service';
+import { ChatComponent } from './components/chat.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, ChatComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="min-h-screen flex flex-col transition-colors duration-1000"
@@ -96,7 +96,30 @@ import { TempleService } from './services/temple.service';
                <a routerLink="/admin" routerLinkActive="bg-red-50 text-red-800" class="px-3 py-2 rounded-lg font-bold text-amber-500 border border-amber-200 bg-amber-900/10">CMS</a>
              }
           </nav>
+
+          <!-- Mobile Menu Button (Simple) -->
+          <button class="lg:hidden text-red-900 p-2" (click)="toggleMobileMenu()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
+
         </div>
+
+        <!-- Mobile Nav Drawer -->
+        @if (isMobileMenuOpen()) {
+          <div class="lg:hidden bg-stone-100 border-t border-stone-200 animate-fade-in relative z-50">
+            <nav class="flex flex-col p-4 gap-2">
+              <a (click)="closeMobileMenu()" routerLink="/" class="px-4 py-3 rounded-md bg-white shadow-sm font-semibold text-stone-800 hover:bg-red-50">Home</a>
+              <a (click)="closeMobileMenu()" routerLink="/history" class="px-4 py-3 rounded-md bg-white shadow-sm font-semibold text-stone-800 hover:bg-red-50">History & Info</a>
+              <a (click)="closeMobileMenu()" routerLink="/booking" class="px-4 py-3 rounded-md bg-amber-50 shadow-sm font-bold text-red-900 hover:bg-red-50 border border-amber-200">Darshan Booking</a>
+              <a (click)="closeMobileMenu()" routerLink="/e-hundi" class="px-4 py-3 rounded-md bg-white shadow-sm font-semibold text-stone-800 hover:bg-red-50">E-Hundi</a>
+              <a (click)="closeMobileMenu()" routerLink="/library" class="px-4 py-3 rounded-md bg-white shadow-sm font-semibold text-stone-800 hover:bg-red-50">Library</a>
+              <a (click)="closeMobileMenu()" routerLink="/gallery" class="px-4 py-3 rounded-md bg-white shadow-sm font-semibold text-stone-800 hover:bg-red-50">Gallery</a>
+              <a (click)="closeMobileMenu()" routerLink="/feedback" class="px-4 py-3 rounded-md bg-white shadow-sm font-semibold text-stone-800 hover:bg-red-50">Feedback</a>
+            </nav>
+          </div>
+        }
       </header>
 
       <!-- Main Content -->
@@ -149,6 +172,9 @@ import { TempleService } from './services/temple.service';
           </div>
         </div>
       </footer>
+      
+      <!-- AI Chat Widget -->
+      <app-chat></app-chat>
     </div>
   `
 })

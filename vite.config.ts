@@ -7,6 +7,10 @@ export default defineConfig({
       tsconfig: './tsconfig.json'
     })
   ],
+  define: {
+    // Inject the provided key if process.env.API_KEY is not set in the build environment
+    'process.env.API_KEY': JSON.stringify(process.env.API_KEY || '457014e25fedc034e5154ae568d60415')
+  },
   build: {
     outDir: 'dist',
     emptyOutDir: true,

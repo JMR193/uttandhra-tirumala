@@ -1,4 +1,3 @@
-
 const CACHE_NAME = 'temple-static-v1';
 const DATA_CACHE_NAME = 'temple-data-v1';
 const AUDIO_CACHE_NAME = 'temple-audio-v1';
@@ -89,10 +88,4 @@ self.addEventListener('fetch', (event) => {
         });
         return networkResponse;
       }).catch(() => {
-         // If fetch fails (offline) and no cache, we might be in trouble for new assets.
-         // But cachedResponse handles the hit.
-      });
-      return cachedResponse || fetchPromise;
-    })
-  );
-});
+         // If

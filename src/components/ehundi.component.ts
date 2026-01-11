@@ -236,17 +236,18 @@ export class EHundiComponent {
   private async initiateTransaction() {
     this.step.set('processing');
     
-    // Generate a temporary ID
+    // Generate a temporary ID for tracking
     const tempTxnId = (this.paymentMode === 'online' ? 'TXN' : 'OFF') + Math.floor(Math.random() * 10000000).toString();
     this.currentDate = new Date().toISOString().split('T')[0];
 
-    // Call Edge Function to verify (simulate server logic)
-    const verification = await this.templeService.verifyPayment(tempTxnId, this.amount);
+    // Call Service which hits Edge Function
+    const verification = await this.templeService.verifyPayment(tempTxnId, this.amount, this.category);
     
     if (verification.success) {
        this.transactionId = tempTxnId;
        
-       // Save to Service (Backend Mock)
+       // Explicit save if not handled by Edge Function in a real scenario
+       // For this setup, we assume verifyPayment might validate, and then we save record
        this.templeService.addDonation({
          id: Date.now().toString(),
          donorName: this.donorName,
