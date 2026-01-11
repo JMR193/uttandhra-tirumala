@@ -125,7 +125,7 @@ export class ChatComponent implements AfterViewChecked {
   private chatSession: Chat | null = null;
 
   constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env['API_KEY'] || '' });
+    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
   }
 
   toggleChat() {

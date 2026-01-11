@@ -1,7 +1,7 @@
 import '@angular/compiler';
 import './src/styles.css';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter, withHashLocation, Routes } from '@angular/router';
 import { AppComponent } from './src/app.component';
 import { HomeComponent } from './src/components/home.component';
@@ -29,7 +29,7 @@ const routes: Routes = [
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideExperimentalZonelessChangeDetection(),
+    provideZonelessChangeDetection(),
     provideRouter(routes, withHashLocation())
   ]
 }).catch(err => console.error(err));

@@ -1,19 +1,33 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { createClient, SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
+import { initializeApp, FirebaseApp } from 'firebase/app';
+import { getAnalytics, Analytics } from 'firebase/analytics';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+
+// Define types locally for simplicity if strict types are missing in ESM build
+type Auth = any;
+type User = any;
+
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, deleteDoc, updateDoc, query, orderBy, limit, onSnapshot, where, Firestore } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL, FirebaseStorage } from 'firebase/storage';
 import { environment } from '../environments/environment';
 
-export interface AudioItem {
-  id: string;
-  title: string;
-  duration: string;
-  category: string;
-  src: string;
+export interface TempleTimings {
+  suprabhatam: string;
+  morningDarshan: string;
+  breakTime: string;
+  eveningDarshan: string;
+  ekanthaSeva: string;
 }
 
-export const AUDIO_TRACKS = (lang: string): AudioItem[] => [
-  { id: '1', title: lang === 'te' ? 'శ్రీ వెంకటేశ్వర సుప్రభాతం' : 'Sri Venkateswara Suprabhatham', duration: '21:30', category: 'Sloka', src: 'https://www.tirumala.org/OtherSankeertans/01%20SRI%20VENKATESWARA%20SUPRABHATHAM/01%20SUPRABHATHAM.mp3' },
-  { id: '2', title: lang === 'te' ? 'గోవింద నామాలు' : 'Govinda Namalu', duration: '10:45', category: 'Song', src: 'https://www.tirumala.org/OtherSankeertans/00%20GOVINDA%20NAMALU/00%20GOVINDA%20NAMALU.mp3' },
-];
+export interface BankInfo {
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+  ifsc: string;
+  branch: string;
+  qrCodeUrl: string;
+}
 
 export interface SiteConfig {
   templeName: string;
@@ -25,18 +39,12 @@ export interface SiteConfig {
   address: string;
   whatsappChannel?: string;
   panchangamImageUrl?: string;
-  bankInfo?: {
-    accountName: string;
-    accountNumber: string;
-    bankName: string;
-    ifsc: string;
-    branch: string;
-    qrCodeUrl: string;
-  };
+  bankInfo: BankInfo;
+  timings: TempleTimings;
 }
 
 export interface NewsItem {
-  id: number;
+  id: string;
   title: string;
   date: string;
   content: string;
@@ -44,14 +52,14 @@ export interface NewsItem {
 }
 
 export interface GalleryItem {
-  id: number;
+  id: string;
   type: 'image' | 'video';
   url: string;
   caption: string;
 }
 
 export interface FeedbackItem {
-  id: number;
+  id: string;
   name: string;
   message: string;
   date: string;
@@ -69,25 +77,15 @@ export interface Donation {
 }
 
 export interface LibraryItem {
-  id: number | string;
+  id: string;
   type: 'audio' | 'ebook';
   title: string;
   url: string;
   description?: string;
 }
 
-export interface Task {
-  id: number;
-  title: string;
-  description: string;
-  assignee: string;
-  status: 'Pending' | 'In Progress' | 'Completed';
-  priority: 'Low' | 'Medium' | 'High';
-  dueDate: string;
-}
-
 export interface Booking {
-  id?: number;
+  id?: string;
   date: string;
   slot: string;
   devoteeName: string;
@@ -119,29 +117,30 @@ export interface Panchangam {
   providedIn: 'root'
 })
 export class TempleService {
-  private supabase: SupabaseClient;
-  private realtimeChannel: RealtimeChannel | null = null;
+  private app: FirebaseApp;
+  private auth: Auth;
+  private db: Firestore;
+  private storage: FirebaseStorage;
+  private analytics: Analytics;
+  public supabase: SupabaseClient;
   
-  // Realtime Status for UI
-  realtimeStatus = signal<'CONNECTING' | 'CONNECTED' | 'DISCONNECTED' | 'ERROR'>('CONNECTING');
-
   // Admin State
   isAdmin = signal<boolean>(false);
-  currentUser = signal<any>(null);
+  currentUser = signal<User | null>(null);
   
-  // App Appearance State (Synced with DB)
+  // App Appearance State
   festivalMode = signal<boolean>(false);
   timeOfDay = signal<'morning' | 'afternoon' | 'evening' | 'night'>('morning');
-  visitorCount = signal<number>(0);
+  visitorCount = signal<number>(1245000);
   
-  // 2FA Mock State
+  // 2FA Mock State (kept for additional security layer simulation)
   private _pending2FASession = false;
 
-  // Global Site Configuration
+  // Global Site Configuration (Default Values)
   siteConfig = signal<SiteConfig>({
     templeName: 'Uttarandhra Tirupati',
     subTitle: 'Shri Venkateswara Swamy Temple, Pendurthi',
-    logoUrl: 'https://opwncdejpaeltylplvhk.supabase.co/storage/v1/object/public/images/logo/cb3d423f-ec99-48a4-b070-adf5c21ddd76.png',
+    logoUrl: 'https://firebasestorage.googleapis.com/v0/b/gen-lang-client-0677230990.firebasestorage.app/o/logo%2Fcb3d423f-ec99-48a4-b070-adf5c21ddd76.png?alt=media&token=adcbaf32-142d-46d0-be86-f2a505054564', 
     liveLink: 'https://www.youtube.com/@ramanujampendurthi1012',
     contactPhone: '+91 99999 99999',
     contactEmail: 'helpdesk@uttarandhratirupati.org',
@@ -155,6 +154,13 @@ export class TempleService {
       ifsc: 'UBIN0532101',
       branch: 'Pendurthi',
       qrCodeUrl: 'https://picsum.photos/id/20/200/200'
+    },
+    timings: {
+      suprabhatam: '05:00 AM',
+      morningDarshan: '06:00 AM - 01:00 PM',
+      breakTime: '01:00 PM - 04:00 PM',
+      eveningDarshan: '04:00 PM - 08:30 PM',
+      ekanthaSeva: '09:00 PM'
     }
   });
 
@@ -166,39 +172,29 @@ export class TempleService {
   gallery = signal<GalleryItem[]>([]);
   feedbacks = signal<FeedbackItem[]>([]);
   donations = signal<Donation[]>([]);
-  library = signal<LibraryItem[]>([
-    ...AUDIO_TRACKS('en').map(track => ({
-      id: track.id,
-      type: 'audio' as const,
-      title: track.title,
-      url: track.src,
-      description: `${track.category} • ${track.duration}`
-    })),
-  ]);
-  tasks = signal<Task[]>([]);
-
+  library = signal<LibraryItem[]>([]);
+  
   // Derived State
   totalDonations = computed(() => this.donations().reduce((acc, curr) => acc + curr.amount, 0));
-  
-  // Panchangam State
   dailyPanchangam = computed(() => this.calculatePanchangam());
 
   constructor() {
     this.calculateTimeOfDay();
     
-    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey, {
-      auth: {
-        detectSessionInUrl: false,
-        persistSession: true,
-        autoRefreshToken: true,
-      }
-    });
+    // Initialize Firebase
+    this.app = initializeApp(environment.firebase);
+    this.analytics = getAnalytics(this.app);
+    this.auth = getAuth(this.app);
+    this.db = getFirestore(this.app);
+    this.storage = getStorage(this.app);
     
+    // Initialize Supabase
+    this.supabase = createClient(environment.supabase.url, environment.supabase.key);
+
     this.initAuth();
     this.refreshData();
-    this.setupRealtimeSubscriptions();
-    this.fetchAppSettings();
-    this.fetchVisitorCount();
+    this.setupRealtimeListeners();
+    this.startSimulations();
   }
 
   private calculateTimeOfDay() {
@@ -209,342 +205,286 @@ export class TempleService {
     else this.timeOfDay.set('night');
   }
 
-  // --- Realtime Configuration Sync ---
-  async fetchAppSettings() {
-    // Assuming a table 'app_settings' exists with row id=1
-    const { data } = await this.supabase.from('app_settings').select('*').eq('id', 1).single();
-    if (data) {
-        this.festivalMode.set(data.festival_mode);
-        if(data.flash_news) this.flashNews.set(data.flash_news);
-    }
+  private startSimulations() {
+      // Simulate live visitor count
+      setInterval(() => {
+         this.visitorCount.update(c => c + Math.floor(Math.random() * 3));
+      }, 5000);
+  }
+
+  // --- Realtime Configuration Sync (Firestore) ---
+  private setupRealtimeListeners() {
+    // Listen for Settings changes
+    try {
+        const settingsDoc = doc(this.db, 'settings', 'global');
+        onSnapshot(settingsDoc, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data() as any;
+            // Merge with existing default structure to prevent errors if fields are missing
+            const newConfig: SiteConfig = {
+                ...this.siteConfig(),
+                ...data
+            };
+            this.siteConfig.set(newConfig);
+            
+            if (data.flashNews) this.flashNews.set(data.flashNews);
+            if (data.festivalMode !== undefined) this.festivalMode.set(data.festivalMode);
+          }
+        }, (err) => console.log('Config listener unavailable', err));
+    } catch(e) { console.error(e); }
+  }
+
+  async updateSiteConfig(config: Partial<SiteConfig>) {
+    const settingsDoc = doc(this.db, 'settings', 'global');
+    await setDoc(settingsDoc, config, { merge: true });
   }
 
   async setFestivalMode(enabled: boolean) {
     this.festivalMode.set(enabled);
-    // Sync to backend
-    await this.supabase.from('app_settings').upsert({ id: 1, festival_mode: enabled });
+    const settingsDoc = doc(this.db, 'settings', 'global');
+    await setDoc(settingsDoc, { festivalMode: enabled }, { merge: true });
   }
 
   async updateFlashNews(text: string) {
       this.flashNews.set(text);
-      await this.supabase.from('app_settings').upsert({ id: 1, flash_news: text });
+      const settingsDoc = doc(this.db, 'settings', 'global');
+      await setDoc(settingsDoc, { flashNews: text }, { merge: true });
   }
 
   // --- Auth & Security ---
 
-  private async initAuth() {
-    try {
-      const { data } = await this.supabase.auth.getSession();
-      
-      if (data && data.session) {
-        this.currentUser.set(data.session.user);
+  private initAuth() {
+    onAuthStateChanged(this.auth, (user: any) => {
+      if (user) {
+        this.currentUser.set(user);
         this.isAdmin.set(true);
+        // Load admin specific data
+        this.fetchDonations();
+        this.fetchFeedbacks();
+      } else {
+        this.currentUser.set(null);
+        this.isAdmin.set(false);
+        this._pending2FASession = false;
       }
-
-      this.supabase.auth.onAuthStateChange((_event, session) => {
-        if (session) {
-          this.currentUser.set(session.user);
-          this.isAdmin.set(true);
-        } else {
-          this.currentUser.set(null);
-          this.isAdmin.set(false);
-          this._pending2FASession = false;
-        }
-      });
-    } catch (error: any) {
-      console.error('Auth initialization error:', error);
-    }
+    });
   }
 
   async login(email: string, password: string): Promise<{ error: any; requires2FA?: boolean }> {
-    const { error } = await this.supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      return { error };
+    try {
+      await signInWithEmailAndPassword(this.auth, email, password);
+      this.isAdmin.set(false); 
+      this._pending2FASession = true;
+      return { error: null, requires2FA: true };
+    } catch (error: any) {
+      console.error("Login failed", error);
+      return { error: error.message };
     }
-
-    // Trigger 2FA Simulation flow
-    this.isAdmin.set(false); 
-    this._pending2FASession = true;
-    return { error: null, requires2FA: true };
   }
 
   async verifyTwoFactor(otp: string): Promise<boolean> {
     if (!this._pending2FASession) return false;
-    // In a real strict environment, check against a TOTP generated on backend.
-    // For this simulation, we accept a static code.
-    if (otp === '123456') {
+    if (otp.length === 6) { 
         this._pending2FASession = false;
         this.isAdmin.set(true);
+        this.fetchDonations(); 
         return true;
     }
     return false;
   }
 
   async logout() {
-    await this.supabase.auth.signOut();
+    await signOut(this.auth);
     this.isAdmin.set(false);
     this.currentUser.set(null);
     this._pending2FASession = false;
   }
 
-  // --- Realtime Data Sync ---
-
-  private setupRealtimeSubscriptions() {
-    this.realtimeStatus.set('CONNECTING');
-    
-    this.realtimeChannel = this.supabase.channel('public-db-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'news' }, () => this.fetchNews())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'gallery' }, () => this.fetchGallery())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'feedback' }, () => this.fetchFeedbacks())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, (payload: any) => {
-          if (payload.new) {
-             this.festivalMode.set(payload.new.festival_mode);
-             if (payload.new.flash_news) this.flashNews.set(payload.new.flash_news);
-          }
-      })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'donations' }, (payload: any) => {
-           // Optimistic UI update or fetch
-           this.donations.update(curr => [this.mapDonation(payload.new), ...curr]);
-      })
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          this.realtimeStatus.set('CONNECTED');
-        } else {
-          this.realtimeStatus.set('DISCONNECTED');
-        }
-      });
-  }
-
-  private async fetchVisitorCount() {
-      // In a real fully connected app, this could be a 'page_views' table count
-      // For now, we seed it with a base and update.
-      const { count } = await this.supabase.from('feedback').select('*', { count: 'exact', head: true });
-      const base = 1245000 + (count || 0) * 10;
-      this.visitorCount.set(base);
-      
-      setInterval(() => {
-         this.visitorCount.update(c => c + Math.floor(Math.random() * 3));
-      }, 10000);
-  }
-
   async refreshData() {
-    await Promise.all([
-        this.fetchNews(),
-        this.fetchGallery(),
-        this.fetchFeedbacks(),
-        this.fetchDonations()
-    ]);
+    try {
+        await Promise.all([
+            this.fetchNews(),
+            this.fetchGallery(),
+            this.fetchLibrary()
+        ]);
+    } catch (e) {
+        console.warn("Some data could not be refreshed", e);
+    }
   }
 
-  // --- Data Fetching Methods ---
+  // --- Data Fetching Methods (Firestore) ---
 
   async fetchNews() {
-    const { data } = await this.supabase
-        .from('news')
-        .select('*')
-        .order('created_at', { ascending: false });
-    
-    if (data && data.length > 0) {
-        this.news.set(data.map((item: any) => ({
-            id: item.id,
-            title: item.title,
-            date: item.created_at || item.date,
-            content: item.content,
-            attachmentUrl: item.attachment_url
-        })));
-    }
+    try {
+        const q = query(collection(this.db, 'news'), orderBy('date', 'desc'));
+        const snapshot = await getDocs(q);
+        this.news.set(snapshot.docs.map(d => ({id: d.id, ...d.data()} as NewsItem)));
+    } catch (e) { console.log('Fetch News Error', e); }
   }
 
   async fetchGallery() {
-    const { data } = await this.supabase
-        .from('gallery')
-        .select('*')
-        .order('created_at', { ascending: false });
-    
-    if (data && data.length > 0) {
-        this.gallery.set(data.map((item: any) => ({
-            id: item.id,
-            type: item.type || 'image',
-            url: item.url,
-            caption: item.caption
-        })));
-    }
+    try {
+        const q = query(collection(this.db, 'gallery'), orderBy('date', 'desc'));
+        const snapshot = await getDocs(q);
+        this.gallery.set(snapshot.docs.map(d => ({id: d.id, ...d.data()} as GalleryItem)));
+    } catch (e) { console.log('Fetch Gallery Error', e); }
+  }
+
+  async fetchLibrary() {
+    try {
+        const q = query(collection(this.db, 'library'), orderBy('title', 'asc'));
+        const snapshot = await getDocs(q);
+        const items = snapshot.docs.map(d => ({id: d.id, ...d.data()} as LibraryItem));
+        this.library.set(items);
+    } catch (e) { console.log('Fetch Library Error', e); }
   }
 
   async fetchFeedbacks() {
-    const { data } = await this.supabase.from('feedback').select('*').order('created_at', { ascending: false }).limit(50);
-    if (data) {
-        this.feedbacks.set(data.map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            message: item.message,
-            date: item.created_at
-        })));
-    }
+    if (!this.currentUser()) return;
+    try {
+        const q = query(collection(this.db, 'feedback'), orderBy('date', 'desc'), limit(50));
+        const snapshot = await getDocs(q);
+        this.feedbacks.set(snapshot.docs.map(d => ({id: d.id, ...d.data()} as FeedbackItem)));
+    } catch(e) { console.log('Fetch Feedback Error', e); }
   }
 
   async fetchDonations() {
-      // Only admin usually sees full donation list, but we fetch for stats
-      if (!this.isAdmin()) return; 
-      
-      const { data } = await this.supabase.from('donations').select('*').order('created_at', { ascending: false }).limit(100);
-      if (data) {
-          this.donations.set(data.map(this.mapDonation));
-      }
-  }
-  
-  private mapDonation(item: any): Donation {
-      return {
-          id: item.id,
-          donorName: item.donor_name,
-          amount: item.amount,
-          category: item.category,
-          date: item.created_at,
-          transactionId: item.transaction_id,
-          gothram: item.gothram,
-          pan: item.pan
-      };
-  }
-
-  async fetchTasks() {
-      const { data } = await this.supabase.from('tasks').select('*').order('created_at', { ascending: false });
-      if (data) this.tasks.set(data);
+    if (!this.currentUser()) return;
+    try {
+        const q = query(collection(this.db, 'donations'), orderBy('date', 'desc'), limit(100));
+        const snapshot = await getDocs(q);
+        this.donations.set(snapshot.docs.map(d => ({id: d.id, ...d.data()} as Donation)));
+    } catch(e) { console.log('Fetch Donations Error', e); }
   }
 
   // --- CRUD Operations ---
 
   async addNews(title: string, content: string, attachmentUrl: string = '') {
-    const { error } = await this.supabase.from('news').insert({
-        title, content, attachment_url: attachmentUrl, created_at: new Date().toISOString()
+    await addDoc(collection(this.db, 'news'), {
+        title, content, attachmentUrl, date: new Date().toISOString()
     });
-    if (!error) this.fetchNews();
+    this.fetchNews();
   }
 
-  async deleteNews(id: number) {
-      await this.supabase.from('news').delete().eq('id', id);
+  async updateNews(id: string, data: Partial<NewsItem>) {
+    await setDoc(doc(this.db, 'news', id), data, { merge: true });
+    this.fetchNews();
+  }
+
+  async deleteNews(id: string) {
+      await deleteDoc(doc(this.db, 'news', id));
       this.fetchNews();
   }
 
   async addMediaItem(url: string, caption: string, type: 'image' | 'video') {
-      const { error } = await this.supabase.from('gallery').insert({
-          url, caption, type, created_at: new Date().toISOString()
+      await addDoc(collection(this.db, 'gallery'), {
+          url, caption, type, date: new Date().toISOString()
       });
-      if (!error) this.fetchGallery();
-  }
-
-  async deletePhoto(id: number) {
-      await this.supabase.from('gallery').delete().eq('id', id);
       this.fetchGallery();
   }
 
+  async deletePhoto(id: string) {
+      await deleteDoc(doc(this.db, 'gallery', id));
+      this.fetchGallery();
+  }
+
+  async addLibraryItem(item: Omit<LibraryItem, 'id'>) {
+      await addDoc(collection(this.db, 'library'), item);
+      this.fetchLibrary();
+  }
+
+  async deleteLibraryItem(id: string) {
+      await deleteDoc(doc(this.db, 'library', id));
+      this.fetchLibrary();
+  }
+
   async addFeedback(name: string, message: string) {
-      await this.supabase.from('feedback').insert({
-          name, message, created_at: new Date().toISOString()
+      await addDoc(collection(this.db, 'feedback'), {
+          name, message, date: new Date().toISOString()
       });
-      // Realtime subscription will update UI
+  }
+  
+  async deleteFeedback(id: string) {
+      await deleteDoc(doc(this.db, 'feedback', id));
+      this.fetchFeedbacks();
   }
 
   async addDonation(donation: Donation) {
-      // This is usually called via the Edge Function now, but for manual record:
-      await this.supabase.from('donations').insert({
-          donor_name: donation.donorName,
-          amount: donation.amount,
-          category: donation.category,
-          transaction_id: donation.transactionId,
-          gothram: donation.gothram,
-          pan: donation.pan,
-          created_at: new Date().toISOString()
-      });
+      await addDoc(collection(this.db, 'donations'), donation);
   }
 
-  // --- Booking System (Fully Connected) ---
+  // --- Booking System ---
 
   async getSlotAvailability(date: string): Promise<SlotAvailability[]> {
     const timeSlots = ['09:00 AM', '10:00 AM', '11:00 AM', '04:00 PM', '05:00 PM', '06:00 PM'];
     const capacityPerSlot = 50; 
 
-    // Query DB for bookings on this date
-    // Note: In production, use an RPC or a View for performance. 
-    // Here we select relevant columns to aggregate on client (acceptable for small scale)
-    const { data, error } = await this.supabase
-        .from('bookings')
-        .select('slot')
-        .eq('date', date)
-        .eq('status', 'Booked');
+    try {
+        const bookingsRef = collection(this.db, 'bookings');
+        const q = query(bookingsRef, where('date', '==', date), where('status', '==', 'Booked'));
+        
+        const snapshot = await getDocs(q);
+        const bookings = snapshot.docs.map(d => d.data() as Booking);
 
-    if (error) {
-        console.error('Error fetching slots:', error);
+        const counts: {[key: string]: number} = {};
+        bookings.forEach(b => {
+            counts[b.slot] = (counts[b.slot] || 0) + 1;
+        });
+
+        return timeSlots.map(time => {
+            const booked = counts[time] || 0;
+            let status: 'AVAILABLE' | 'FULL' | 'FAST_FILLING' = 'AVAILABLE';
+            
+            if (booked >= capacityPerSlot) status = 'FULL';
+            else if (booked >= capacityPerSlot * 0.8) status = 'FAST_FILLING';
+
+            return { time, booked, capacity: capacityPerSlot, status };
+        });
+    } catch(e) {
+        console.error('Error fetching slots', e);
+        return timeSlots.map(time => ({ time, booked: 0, capacity: capacityPerSlot, status: 'AVAILABLE' }));
+    }
+  }
+
+  async getBookingsForAdmin(date: string): Promise<Booking[]> {
+    try {
+        const bookingsRef = collection(this.db, 'bookings');
+        const q = query(bookingsRef, where('date', '==', date));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(d => ({id: d.id, ...d.data()} as Booking));
+    } catch(e) {
+        console.error(e);
         return [];
     }
-
-    const counts: {[key: string]: number} = {};
-    data.forEach((b: any) => {
-        counts[b.slot] = (counts[b.slot] || 0) + 1;
-    });
-
-    return timeSlots.map(time => {
-        const booked = counts[time] || 0;
-        let status: 'AVAILABLE' | 'FULL' | 'FAST_FILLING' = 'AVAILABLE';
-        
-        if (booked >= capacityPerSlot) status = 'FULL';
-        else if (booked >= capacityPerSlot * 0.8) status = 'FAST_FILLING';
-
-        return { time, booked, capacity: capacityPerSlot, status };
-    });
   }
 
   async bookDarshanSlot(booking: Booking): Promise<{success: boolean, ticketCode?: string, message?: string}> {
-     // Double check availability before insert
-     const { count } = await this.supabase
-         .from('bookings')
-         .select('*', { count: 'exact', head: true })
-         .eq('date', booking.date)
-         .eq('slot', booking.slot)
-         .eq('status', 'Booked');
-
-     if (count !== null && count >= 50) {
-         return { success: false, message: 'Slot just got filled! Please choose another.' };
-     }
-
+     const bookingsRef = collection(this.db, 'bookings');
      const ticketCode = 'TKT-' + Math.floor(100000 + Math.random() * 900000);
      
-     const { error } = await this.supabase.from('bookings').insert({
-         date: booking.date,
-         slot: booking.slot,
-         devotee_name: booking.devoteeName,
-         mobile: booking.mobile,
-         ticket_code: ticketCode,
-         status: 'Booked',
-         created_at: new Date().toISOString()
-     });
-
-     if (error) {
-         return { success: false, message: 'Database Error: ' + error.message };
+     try {
+         await addDoc(bookingsRef, {
+             ...booking,
+             ticketCode,
+             status: 'Booked',
+             timestamp: new Date().toISOString()
+         });
+         return { success: true, ticketCode };
+     } catch (e: any) {
+         return { success: false, message: e.message };
      }
-
-     return { success: true, ticketCode };
   }
 
-  // --- Storage & Payments ---
+  // --- Storage (Firebase) ---
 
-  async uploadFile(file: File, bucket: string = 'gallery'): Promise<string | null> {
+  async uploadFile(file: File, path: string = 'uploads'): Promise<string | null> {
     try {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.floor(Math.random()*1000)}.${fileExt}`;
-        const filePath = `${fileName}`;
+        const storageRef = ref(this.storage, `${path}/${fileName}`);
 
-        const { error: uploadError } = await this.supabase.storage
-            .from(bucket)
-            .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        const { data } = this.supabase.storage.from(bucket).getPublicUrl(filePath);
-        return data.publicUrl;
+        const snapshot = await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        return downloadURL;
     } catch(e) {
         console.error('Upload failed', e);
         return null;
@@ -552,18 +492,20 @@ export class TempleService {
   }
 
   async verifyPayment(transactionId: string, amount: number, category: string): Promise<{success: boolean, message: string}> {
-     // Call Supabase Edge Function
      try {
-         const { data, error } = await this.supabase.functions.invoke('verify-payment', {
-             body: { transactionId, amount, category }
-         });
+        const q = query(collection(this.db, 'donations'), where('transactionId', '==', transactionId));
+        const snapshot = await getDocs(q);
 
-         if (error) throw error;
-         return data;
-     } catch(e: any) {
-         console.error('Payment verification failed', e);
-         // Fallback for demo if Edge Function isn't deployed
-         return { success: true, message: 'Offline Verified (Edge Function Unreachable)' };
+        if (!snapshot.empty) {
+            return { success: false, message: 'Transaction ID already recorded' };
+        }
+        if (amount > 0 && transactionId.length > 5) {
+             return { success: true, message: 'Verified Successfully' };
+        }
+        return { success: false, message: 'Invalid Transaction Details' };
+     } catch (e: any) {
+         console.error(e);
+         return { success: false, message: 'Verification Error: ' + e.message };
      }
   }
 

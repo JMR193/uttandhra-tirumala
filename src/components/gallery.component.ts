@@ -169,7 +169,7 @@ export class GalleryComponent {
     this.uploading = false;
   }
 
-  confirmDelete(id: number) {
+  confirmDelete(id: string) {
     if (confirm('Are you sure you want to permanently delete this item?')) {
       this.templeService.deletePhoto(id);
     }

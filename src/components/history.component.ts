@@ -78,12 +78,24 @@ import { CommonModule } from '@angular/common';
                 <h4 class="font-bold text-amber-800 uppercase text-sm mb-3 tracking-wide">Temple Timings</h4>
                 <div class="space-y-3 text-sm bg-stone-50 p-4 rounded-lg">
                   <div class="flex justify-between border-b border-stone-200 pb-2">
-                    <span class="text-stone-600">Morning</span>
-                    <span class="font-bold text-stone-900">06:00 AM – 01:00 PM</span>
+                    <span class="text-stone-600">Suprabhatam</span>
+                    <span class="font-bold text-stone-900">{{ templeService.siteConfig().timings.suprabhatam }}</span>
+                  </div>
+                  <div class="flex justify-between border-b border-stone-200 pb-2">
+                    <span class="text-stone-600">Morning Darshan</span>
+                    <span class="font-bold text-stone-900">{{ templeService.siteConfig().timings.morningDarshan }}</span>
+                  </div>
+                  <div class="flex justify-between border-b border-stone-200 pb-2">
+                    <span class="text-stone-600">Break</span>
+                    <span class="font-bold text-stone-900 text-red-700">{{ templeService.siteConfig().timings.breakTime }}</span>
+                  </div>
+                  <div class="flex justify-between border-b border-stone-200 pb-2">
+                    <span class="text-stone-600">Evening Darshan</span>
+                    <span class="font-bold text-stone-900">{{ templeService.siteConfig().timings.eveningDarshan }}</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-stone-600">Evening</span>
-                    <span class="font-bold text-stone-900">04:00 PM – 08:30 PM</span>
+                    <span class="text-stone-600">Ekantha Seva</span>
+                    <span class="font-bold text-stone-900">{{ templeService.siteConfig().timings.ekanthaSeva }}</span>
                   </div>
                 </div>
               </div>
