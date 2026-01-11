@@ -1,10 +1,10 @@
-
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { TempleService, LibraryItem } from '../services/temple.service';
 
 @Component({
   selector: 'app-library',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="bg-amber-50 min-h-screen py-12">
       <div class="container mx-auto px-4">

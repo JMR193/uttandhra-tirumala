@@ -1,5 +1,4 @@
-
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TempleService, SlotAvailability } from '../services/temple.service';
@@ -8,6 +7,7 @@ import { TempleService, SlotAvailability } from '../services/temple.service';
   selector: 'app-booking',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="bg-amber-50 min-h-screen py-8">
       <div class="container mx-auto px-4">

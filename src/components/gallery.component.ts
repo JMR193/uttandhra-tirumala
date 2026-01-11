@@ -1,5 +1,4 @@
-
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { TempleService } from '../services/temple.service';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -8,6 +7,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   selector: 'app-gallery',
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="bg-stone-50 min-h-screen py-12">
       <div class="container mx-auto px-4">

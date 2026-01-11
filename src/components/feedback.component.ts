@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TempleService } from '../services/temple.service';
 import { FormsModule } from '@angular/forms';
 
@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-feedback',
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="bg-amber-50 py-12 min-h-screen flex items-center justify-center">
       <div class="container mx-auto px-4">

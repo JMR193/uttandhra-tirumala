@@ -1,13 +1,13 @@
-
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TempleService } from '../services/temple.service';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink, CommonModule, NgOptimizedImage],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- Top Scrolling Ticker (Maroon Background like Tirumala.org) -->
     <div class="bg-[#800000] text-white py-2 overflow-hidden relative shadow-md border-b-2 border-amber-500 z-20">
@@ -27,9 +27,11 @@ import { CommonModule } from '@angular/common';
 
     <!-- Hero Banner with Slider effect imitation -->
     <div class="relative h-[400px] md:h-[550px] w-full overflow-hidden bg-stone-900 group">
-      <img src="https://yt3.googleusercontent.com/7y8KChJI_huixiWRFJGfK9-t5E3d7LMvZQN7QdJ2VHdTn8MIwFIH9Mohj0mKmaSGzWlns_ujRQ=w1707-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj" 
-           class="w-full h-full object-cover opacity-90 transition-transform duration-[10s] ease-linear group-hover:scale-110" 
-           fetchpriority="high" loading="eager" alt="Temple Banner">
+      <img ngSrc="https://yt3.googleusercontent.com/7y8KChJI_huixiWRFJGfK9-t5E3d7LMvZQN7QdJ2VHdTn8MIwFIH9Mohj0mKmaSGzWlns_ujRQ=w1707-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj" 
+           fill
+           priority
+           class="object-cover opacity-90 transition-transform duration-[10s] ease-linear group-hover:scale-110" 
+           alt="Temple Banner">
       
       <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex items-center justify-center text-center">
          <div class="container mx-auto px-6 md:px-12 animate-fade-in-up">

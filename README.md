@@ -11,7 +11,7 @@ An advanced, full-stack Temple Management System built for **Shri Venkateswara S
 - **Visualization**: D3.js (Admin Dashboard Charts).
 - **Icons**: Heroicons (SVG).
 - **Routing**: Angular Router (Hash Location Strategy).
-- **Hosting**: Firebase Hosting.
+- **Hosting**: Vercel / Docker.
 
 ## ✨ Features
 
@@ -49,7 +49,6 @@ An advanced, full-stack Temple Management System built for **Shri Venkateswara S
 ### Prerequisites
 *   Node.js (v18 or higher)
 *   npm or yarn
-*   Firebase CLI (`npm install -g firebase-tools`)
 
 ### Installation
 1.  **Clone the repository**:
@@ -75,27 +74,33 @@ An advanced, full-stack Temple Management System built for **Shri Venkateswara S
     ```
     Navigate to `http://localhost:4200/`.
 
-### Deployment to Firebase
+### Deployment to Vercel
 
-1.  **Login to Firebase**:
+1.  **Install Vercel CLI**:
     ```bash
-    firebase login
+    npm i -g vercel
     ```
 
-2.  **Initialize Project** (if not already done):
+2.  **Deploy**:
     ```bash
-    firebase init
+    vercel
     ```
-    - Select **Hosting**.
-    - Select your Firebase project.
-    - Public directory: `dist/uttarandhra-tirupati`
-    - Configure as single-page app: **Yes**
+    Follow the prompts to link the project and deploy.
 
-3.  **Deploy**:
+### 🐳 Docker Support
+
+Build and run the application using Docker:
+
+1.  **Build the image**:
     ```bash
-    npm run deploy
+    docker build -t uttarandhra-tirupati .
     ```
-    This command builds the Angular app and deploys it to Firebase Hosting.
+
+2.  **Run the container**:
+    ```bash
+    docker run -p 8080:80 uttarandhra-tirupati
+    ```
+    Access the app at `http://localhost:8080`.
 
 ## 📂 Project Structure
 

@@ -1,5 +1,4 @@
-
-import { Component, ElementRef, OnInit, OnDestroy, ViewChild, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TempleService } from '../services/temple.service';
 
@@ -9,6 +8,7 @@ declare var THREE: any;
   selector: 'app-digital-darshan',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="relative w-full h-screen bg-black overflow-hidden select-none" (window:resize)="onResize()">
       

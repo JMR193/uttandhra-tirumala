@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { TempleService } from '../services/temple.service';
 import { CommonModule } from '@angular/common';
 
@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-history',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="bg-orange-50 min-h-screen animate-fade-in">
       <!-- Hero -->

@@ -4,14 +4,14 @@ import angular from '@analogjs/vite-plugin-angular';
 export default defineConfig({
   plugins: [
     angular({
-      jit: true,
       tsconfig: './tsconfig.json'
     })
   ],
   build: {
-    outDir: 'dist/uttarandhra-tirupati',
+    outDir: 'dist',
     emptyOutDir: true,
-    target: 'es2020'
+    target: 'es2020',
+    sourcemap: false
   },
   resolve: {
     mainFields: ['module']

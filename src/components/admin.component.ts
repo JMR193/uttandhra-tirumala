@@ -1,5 +1,4 @@
-
-import { Component, inject, signal, ElementRef, ViewChild, AfterViewInit, effect, computed, OnDestroy } from '@angular/core';
+import { Component, inject, signal, ElementRef, ViewChild, AfterViewInit, effect, computed, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { TempleService, Donation, SiteConfig, Task } from '../services/temple.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -9,12 +8,12 @@ import * as d3 from 'd3';
   selector: 'app-admin',
   standalone: true,
   imports: [FormsModule, CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="min-h-screen bg-orange-50 font-sans">
       
       <!-- Login Overlay -->
       @if (!templeService.isAdmin()) {
-        <!-- ... (Login code same as before, truncated for brevity, assume existing login UI here) ... -->
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-red-900/90 backdrop-blur-sm">
           <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl border-2 border-amber-400 animate-fade-in">
              <h2 class="text-3xl font-serif font-bold text-red-900 mb-4 text-center">Temple OS Admin</h2>
