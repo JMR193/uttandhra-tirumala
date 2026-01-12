@@ -27,6 +27,7 @@ import { TempleService } from '../services/temple.service';
             </div>
 
             <div class="relative z-10">
+              @if (templeService.siteConfig().enableHundi) {
                 <!-- Payment Method Selection -->
                 @if (step() === 'form') {
                   <div class="flex justify-center gap-4 mb-8">
@@ -152,12 +153,6 @@ import { TempleService } from '../services/temple.service';
                        {{ paymentMode === 'online' ? 'Encrypted & Secure Payment Processing' : 'Please ensure transfer is complete before recording' }}
                     </p>
                   </form>
-                } @else if (step() === 'processing') {
-                  <div class="flex flex-col items-center justify-center py-12 bg-white/90 backdrop-blur-sm rounded-xl">
-                     <div class="w-16 h-16 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin mb-4"></div>
-                     <p class="text-xl font-bold text-stone-700">Processing Payment...</p>
-                     <p class="text-sm text-stone-500 animate-pulse">Verifying with Secure Gateway...</p>
-                  </div>
                 } @else if (step() === 'success') {
                   <!-- Receipt View -->
                   <div class="text-center py-4 animate-fade-in print:text-left bg-white/95 backdrop-blur-sm rounded-xl p-6">
@@ -203,10 +198,91 @@ import { TempleService } from '../services/temple.service';
                     </div>
                   </div>
                 }
+              } @else {
+               <!-- Hundi Disabled State -->
+               <div class="flex flex-col items-center justify-center py-20 text-center animate-fade-in">
+                  <div class="w-24 h-24 bg-stone-100 rounded-full flex items-center justify-center mb-6">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-stone-400"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                  </div>
+                  <h3 class="text-2xl font-bold text-stone-700 font-serif">E-Hundi Maintenance</h3>
+                  <p class="text-stone-500 max-w-md mt-2">Online donation services are currently paused for maintenance. Please visit the temple office.</p>
+               </div>
+              }
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Realistic Payment Gateway Modal Simulation -->
+      @if (showPaymentModal()) {
+        <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
+           <div class="bg-white w-full max-w-md rounded-lg shadow-2xl overflow-hidden animate-fade-in-up">
+              <!-- Gateway Header -->
+              <div class="bg-stone-50 p-4 border-b border-stone-200 flex justify-between items-center">
+                 <div class="flex items-center gap-2">
+                    <div class="font-bold text-stone-700 italic text-lg tracking-tighter">SECURE<span class="text-blue-600">PAY</span></div>
+                    <span class="text-[10px] bg-green-100 text-green-700 px-1 rounded border border-green-200">Trusted</span>
+                 </div>
+                 <div class="text-right">
+                    <p class="text-[10px] text-stone-500 uppercase font-bold">Amount to Pay</p>
+                    <p class="font-bold text-stone-800">INR {{ amount }}.00</p>
+                 </div>
+              </div>
+
+              <!-- Gateway Body -->
+              <div class="p-6">
+                 @if (gatewayState() === 'input') {
+                    <p class="text-sm font-bold text-stone-600 mb-4">Select Payment Method</p>
+                    
+                    <!-- Tabs -->
+                    <div class="flex border-b border-stone-200 mb-4">
+                       <button (click)="pgMethod = 'card'" [class.border-blue-600]="pgMethod === 'card'" [class.text-blue-600]="pgMethod === 'card'" class="w-1/2 py-2 text-sm font-bold text-stone-500 border-b-2 border-transparent transition-colors">Card</button>
+                       <button (click)="pgMethod = 'upi'" [class.border-blue-600]="pgMethod === 'upi'" [class.text-blue-600]="pgMethod === 'upi'" class="w-1/2 py-2 text-sm font-bold text-stone-500 border-b-2 border-transparent transition-colors">UPI / QR</button>
+                    </div>
+
+                    @if (pgMethod === 'card') {
+                       <div class="space-y-3 animate-fade-in">
+                          <input type="text" placeholder="Card Number" class="w-full p-3 border border-stone-300 rounded text-sm bg-stone-50 focus:bg-white focus:border-blue-500 outline-none">
+                          <div class="flex gap-3">
+                             <input type="text" placeholder="MM / YY" class="w-1/2 p-3 border border-stone-300 rounded text-sm bg-stone-50 focus:bg-white focus:border-blue-500 outline-none">
+                             <input type="password" placeholder="CVV" maxlength="3" class="w-1/2 p-3 border border-stone-300 rounded text-sm bg-stone-50 focus:bg-white focus:border-blue-500 outline-none">
+                          </div>
+                          <input type="text" placeholder="Card Holder Name" class="w-full p-3 border border-stone-300 rounded text-sm bg-stone-50 focus:bg-white focus:border-blue-500 outline-none">
+                       </div>
+                    } @else {
+                       <div class="space-y-4 animate-fade-in text-center py-4">
+                          <p class="text-xs text-stone-500">Enter UPI ID (e.g. mobile@upi)</p>
+                          <input type="text" placeholder="username@bank" class="w-full p-3 border border-stone-300 rounded text-sm bg-stone-50 focus:bg-white focus:border-blue-500 outline-none text-center">
+                          <div class="text-xs font-bold text-stone-400 uppercase">OR</div>
+                          <div class="w-32 h-32 bg-stone-100 mx-auto rounded border border-stone-200 flex items-center justify-center text-xs text-stone-400">
+                             Simulated QR Code
+                          </div>
+                       </div>
+                    }
+
+                    <button (click)="payNow()" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded shadow-md transition-colors flex justify-center items-center gap-2">
+                       Pay ₹ {{ amount }}
+                    </button>
+                    <button (click)="cancelPayment()" class="w-full mt-2 text-stone-400 hover:text-stone-600 text-xs py-2 font-bold">Cancel Transaction</button>
+
+                 } @else if (gatewayState() === 'processing') {
+                    <div class="py-12 flex flex-col items-center animate-fade-in">
+                       <div class="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                       <p class="font-bold text-stone-700">Contacting Bank...</p>
+                       <p class="text-xs text-stone-400 mt-1">Please do not refresh the page</p>
+                    </div>
+                 }
+              </div>
+              
+              <!-- Gateway Footer -->
+              <div class="bg-stone-50 p-3 border-t border-stone-200 flex justify-center gap-4 opacity-50 grayscale">
+                 <div class="h-4 w-8 bg-stone-300 rounded"></div>
+                 <div class="h-4 w-8 bg-stone-300 rounded"></div>
+                 <div class="h-4 w-8 bg-stone-300 rounded"></div>
+              </div>
+           </div>
+        </div>
+      }
     </div>
   `
 })
@@ -220,24 +296,48 @@ export class EHundiComponent {
   pan = '';
   paymentMode: 'online' | 'bank' = 'online';
   
-  step = signal<'form' | 'processing' | 'success'>('form');
+  step = signal<'form' | 'success'>('form'); // Simplified step since Gateway handles processing now
   transactionId = '';
   currentDate = '';
 
+  // Payment Gateway State
+  showPaymentModal = signal(false);
+  gatewayState = signal<'input' | 'processing'>('input');
+  pgMethod: 'card' | 'upi' = 'card';
+
   processPayment(e: Event) {
     e.preventDefault();
-    this.initiateTransaction();
+    if (this.paymentMode === 'online') {
+        this.showPaymentModal.set(true);
+        this.gatewayState.set('input');
+    } else {
+        // Direct bank recording
+        this.completeTransaction();
+    }
   }
 
   recordOfflineDonation() {
-    this.initiateTransaction();
+    this.completeTransaction();
   }
 
-  private async initiateTransaction() {
-    this.step.set('processing');
-    
+  // Gateway Simulation Logic
+  payNow() {
+      this.gatewayState.set('processing');
+      // Simulate network delay
+      setTimeout(() => {
+          this.showPaymentModal.set(false);
+          this.completeTransaction();
+      }, 3000);
+  }
+
+  cancelPayment() {
+      this.showPaymentModal.set(false);
+  }
+
+  private async completeTransaction() {
     // Generate a temporary ID for tracking
-    const tempTxnId = (this.paymentMode === 'online' ? 'TXN' : 'OFF') + Math.floor(Math.random() * 10000000).toString();
+    const prefix = this.paymentMode === 'online' ? 'TXN' : 'OFF';
+    const tempTxnId = prefix + Math.floor(Math.random() * 10000000).toString();
     this.currentDate = new Date().toISOString().split('T')[0];
 
     // Call Service which hits Edge Function
@@ -246,8 +346,6 @@ export class EHundiComponent {
     if (verification.success) {
        this.transactionId = tempTxnId;
        
-       // Explicit save if not handled by Edge Function in a real scenario
-       // For this setup, we assume verifyPayment might validate, and then we save record
        this.templeService.addDonation({
          id: Date.now().toString(),
          donorName: this.donorName,

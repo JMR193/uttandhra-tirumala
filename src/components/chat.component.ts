@@ -30,7 +30,7 @@ interface ChatMessage {
       <div class="bg-[#800000] p-4 flex justify-between items-center text-white shadow-md">
          <div class="flex items-center gap-3">
              <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center border border-amber-500 overflow-hidden">
-               <img src="https://www.tirumala.org/Images/Sangu_Chakra_Symbol.png" class="w-8 h-8 opacity-90" alt="Deity">
+               <img src="https://opwncdejpaeltylplvhk.supabase.co/storage/v1/object/public/images/logo/cb3d423f-ec99-48a4-b070-adf5c21ddd76.png" class="w-8 h-8 opacity-90" alt="Deity">
              </div>
              <div>
                <h3 class="font-bold font-serif text-amber-400 leading-tight">Digital Sahayak</h3>

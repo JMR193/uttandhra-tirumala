@@ -1,21 +1,10 @@
 export const environment = {
-  // Firebase Configuration
-  firebase: {
-    apiKey: "AIzaSyDG_uY8W2YFeWyXuHI76nGzBKzRGRnM_b4",
-    authDomain: "gen-lang-client-0677230990.firebaseapp.com",
-    databaseURL: "https://gen-lang-client-0677230990-default-rtdb.firebaseio.com",
-    projectId: "gen-lang-client-0677230990",
-    storageBucket: "gen-lang-client-0677230990.firebasestorage.app",
-    messagingSenderId: "865925478388",
-    appId: "1:865925478388:web:298b4dedd3e855f9b36ba1",
-    measurementId: "G-6XDRCD7NWY"
-  },
-  // Supabase Configuration
+  // Supabase Configuration (Primary Backend)
   supabase: {
     url: "https://opwncdejpaeltylplvhk.supabase.co",
-    key: "sb_publishable_u3wGO_9f3tfT2CaldVuDFw_vlXLDymg",
+    key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wd25jZGVqcGFlbHR5bHBsdmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcyMDY5MTUsImV4cCI6MjA4Mjc4MjkxNX0.A1ncANkOHQV-FVxDk5uQY2_S5kQ_FRmDIzOEGYTQ6lY",
     storageUrl: "https://opwncdejpaeltylplvhk.storage.supabase.co/storage/v1/s3",
     region: "ap-southeast-1"
   },
-  production: false
+  production: true
 };

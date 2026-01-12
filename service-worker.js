@@ -87,5 +87,11 @@ self.addEventListener('fetch', (event) => {
           cache.put(event.request, networkResponse.clone());
         });
         return networkResponse;
-      }).catch(() => {
-         // If
+      }).catch((err) => {
+          // Network failed, return nothing (or offline page if implemented)
+          console.log('Fetch failed', err);
+      });
+      return cachedResponse || fetchPromise;
+    })
+  );
+});

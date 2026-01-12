@@ -13,14 +13,14 @@ declare var THREE: any;
     <div class="relative w-full h-screen bg-black overflow-hidden select-none" (window:resize)="onResize()">
       
       <!-- 3D Canvas Container -->
-      <div #canvasContainer class="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-900/20 via-black to-black"></div>
+      <div #canvasContainer class="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,_#5c1c1c_0%,_#1a0505_100%)]"></div>
 
       <!-- UI Overlay -->
       <div class="absolute inset-0 z-10 pointer-events-none flex flex-col justify-between p-6">
         
         <!-- Header -->
         <div class="flex justify-between items-start pointer-events-auto">
-           <div class="bg-black/60 backdrop-blur-md p-4 rounded-xl border border-amber-600/50 text-white shadow-lg animate-fade-in-up">
+           <div class="bg-[#2a0a0a]/80 backdrop-blur-md p-4 rounded-xl border border-amber-600/50 text-white shadow-lg animate-fade-in-up">
               <h2 class="text-2xl font-serif font-bold text-amber-400 drop-shadow-md">Divya Darshanam</h2>
               <p class="text-xs text-stone-300">Shri Venkateswara Swamy</p>
            </div>
@@ -30,16 +30,16 @@ declare var THREE: any;
         </div>
 
         <!-- Camera Controls (Right Side) -->
-        <div class="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 pointer-events-auto bg-black/40 p-2 rounded-2xl backdrop-blur-md border border-amber-900/30 shadow-2xl">
+        <div class="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 pointer-events-auto bg-[#2a0a0a]/60 p-2 rounded-2xl backdrop-blur-md border border-amber-900/30 shadow-2xl">
             <!-- View Presets -->
             <div class="flex flex-col gap-2">
-               <button (click)="setView('face')" class="w-10 h-10 rounded-full bg-stone-800 text-amber-200 border border-stone-600 hover:bg-amber-900 hover:border-amber-500 transition-all flex items-center justify-center shadow-lg" title="Netra Darshanam (Face)">
+               <button (click)="setView('face')" class="w-10 h-10 rounded-full bg-[#4a0404] text-amber-200 border border-amber-900/50 hover:bg-amber-900 hover:border-amber-500 transition-all flex items-center justify-center shadow-lg" title="Netra Darshanam (Face)">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z" /><path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clip-rule="evenodd" /></svg>
                </button>
-               <button (click)="setView('feet')" class="w-10 h-10 rounded-full bg-stone-800 text-amber-200 border border-stone-600 hover:bg-amber-900 hover:border-amber-500 transition-all flex items-center justify-center shadow-lg" title="Pada Darshanam (Feet)">
+               <button (click)="setView('feet')" class="w-10 h-10 rounded-full bg-[#4a0404] text-amber-200 border border-amber-900/50 hover:bg-amber-900 hover:border-amber-500 transition-all flex items-center justify-center shadow-lg" title="Pada Darshanam (Feet)">
                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" /></svg>
                </button>
-               <button (click)="setView('full')" class="w-10 h-10 rounded-full bg-stone-800 text-amber-200 border border-stone-600 hover:bg-amber-900 hover:border-amber-500 transition-all flex items-center justify-center shadow-lg" title="Full View">
+               <button (click)="setView('full')" class="w-10 h-10 rounded-full bg-[#4a0404] text-amber-200 border border-amber-900/50 hover:bg-amber-900 hover:border-amber-500 transition-all flex items-center justify-center shadow-lg" title="Full View">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm0 8.625a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25zM15.375 12a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zM7.5 10.875a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z" clip-rule="evenodd" /></svg>
                </button>
             </div>
@@ -71,7 +71,7 @@ declare var THREE: any;
       </div>
 
       @if (loading()) {
-        <div class="absolute inset-0 z-20 flex items-center justify-center bg-black/90 backdrop-blur-sm text-amber-500">
+        <div class="absolute inset-0 z-20 flex items-center justify-center bg-[#1a0505]/95 backdrop-blur-sm text-amber-500">
            <div class="flex flex-col items-center animate-pulse">
               <div class="w-20 h-20 border-4 border-amber-600 border-t-amber-300 rounded-full animate-spin mb-6 shadow-[0_0_30px_#f59e0b]"></div>
               <p class="font-serif tracking-[0.2em] text-sm uppercase text-amber-300">Manifesting Deity...</p>
@@ -102,7 +102,7 @@ export class DigitalDarshanComponent implements OnInit, OnDestroy {
   
   // Animation Objects
   private movingLight: any;
-  private haloLight: any; // NEW: Halo light
+  private haloLight: any;
   private flowers: { mesh: any, speed: number, swayOffset: number }[] = [];
   private harathiObj: { light: any, angle: number, radius: number, height: number } | null = null;
   
@@ -176,12 +176,12 @@ export class DigitalDarshanComponent implements OnInit, OnDestroy {
     switch(view) {
        case 'face':
           this.targetDistance = 6;
-          this.targetY = 5.5; // Adjusted for larger model scale
+          this.targetY = 5.5; 
           this.targetLookAtY = 5.5;
           break;
        case 'feet':
           this.targetDistance = 6;
-          this.targetY = -5.5; // Adjusted for larger model scale
+          this.targetY = -5.5;
           this.targetLookAtY = -5.5;
           break;
        case 'full':
@@ -236,6 +236,8 @@ export class DigitalDarshanComponent implements OnInit, OnDestroy {
 
   initThreeJS() {
     if (typeof THREE === 'undefined') {
+        // Fallback or retry logic if THREE not loaded yet
+        console.warn('Three.js not loaded');
         this.loading.set(false);
         return;
     }
@@ -244,7 +246,8 @@ export class DigitalDarshanComponent implements OnInit, OnDestroy {
     const height = this.containerRef.nativeElement.clientHeight;
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0x0a0400, 0.03); 
+    // Warm, dark maroon fog instead of black
+    this.scene.fog = new THREE.FogExp2(0x1a0505, 0.02); 
 
     this.camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
     this.camera.position.set(0, 0, this.targetDistance); 
@@ -257,11 +260,10 @@ export class DigitalDarshanComponent implements OnInit, OnDestroy {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.containerRef.nativeElement.appendChild(this.renderer.domElement);
 
-    // Ambient Light: Darker ground color for better contrast
-    const ambientLight = new THREE.HemisphereLight(0xffeeb1, 0x080820, 0.5); 
+    const ambientLight = new THREE.HemisphereLight(0xffeeb1, 0x2a0a0a, 0.5); 
     this.scene.add(ambientLight);
 
-    const mainSpot = new THREE.SpotLight(0xffaa00, 2.0); // Warm gold
+    const mainSpot = new THREE.SpotLight(0xffaa00, 2.0); 
     mainSpot.position.set(5, 15, 15);
     mainSpot.castShadow = true;
     mainSpot.shadow.bias = -0.0001;
@@ -269,13 +271,11 @@ export class DigitalDarshanComponent implements OnInit, OnDestroy {
     mainSpot.shadow.mapSize.height = 2048;
     this.scene.add(mainSpot);
     
-    // Moving Fill Light (PointLight)
-    this.movingLight = new THREE.PointLight(0xffd700, 1.0, 30); // Gold
+    this.movingLight = new THREE.PointLight(0xffd700, 1.0, 30); 
     this.scene.add(this.movingLight);
 
-    // NEW: Divine Halo Light (Backlight)
-    this.haloLight = new THREE.PointLight(0xff6600, 2.0, 20); // Orange-ish
-    this.haloLight.position.set(0, 5, -5); // Behind the idol
+    this.haloLight = new THREE.PointLight(0xff6600, 2.0, 20); 
+    this.haloLight.position.set(0, 5, -5); 
     this.scene.add(this.haloLight);
 
     this.goldMaterial = new THREE.MeshStandardMaterial({
@@ -303,7 +303,6 @@ export class DigitalDarshanComponent implements OnInit, OnDestroy {
           const size = new THREE.Vector3();
           box.getSize(size);
           const maxDim = Math.max(size.x, size.y, size.z);
-          // Scale increased from 8.0 to 14.0 for 60-70% screen coverage
           const scale = maxDim > 0 ? 14.0 / maxDim : 1;
           
           this.currentMesh = new THREE.Mesh(geometry, this.goldMaterial);
@@ -349,7 +348,6 @@ export class DigitalDarshanComponent implements OnInit, OnDestroy {
     el.addEventListener('touchmove', (e: any) => this.onTouchMove(e), {passive: false});
     el.addEventListener('touchend', () => this.isDragging = false);
     
-    // Updated Wheel for Signal Binding
     el.addEventListener('wheel', (e: any) => {
         const delta = e.deltaY * 0.05;
         this.targetDistance = Math.min(Math.max(this.targetDistance + delta, 5), 30);
@@ -359,9 +357,9 @@ export class DigitalDarshanComponent implements OnInit, OnDestroy {
   }
 
   createProceduralModels() {
+    if (!this.idolGroup) return; // Safeguard if idolGroup is not initialized
     this.idolGroup.clear();
     const namamGroup = new THREE.Group();
-    // Scaled up for matching new size
     const uShape = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.3, 8, 20, Math.PI), this.goldMaterial);
     uShape.rotation.z = Math.PI;
     namamGroup.add(uShape);
@@ -371,7 +369,6 @@ export class DigitalDarshanComponent implements OnInit, OnDestroy {
     tilak.position.y = -0.5;
     namamGroup.add(tilak);
     
-    // Scale group to match ~14 units height
     namamGroup.scale.set(3.5, 3.5, 3.5);
 
     this.idolGroup.add(namamGroup);
@@ -417,32 +414,23 @@ export class DigitalDarshanComponent implements OnInit, OnDestroy {
     this.animationId = requestAnimationFrame(() => this.animate());
     const time = Date.now() * 0.001;
 
-    // --- SMOOTH CAMERA MOVEMENT ---
-    // Interpolate Distance (Zoom)
-    this.camera.position.z += (this.targetDistance - this.camera.position.z) * 0.05;
-    
-    // Interpolate Y (Pan)
-    this.camera.position.y += (this.targetY - this.camera.position.y) * 0.05;
-    
-    // Interpolate LookAt Y
-    this.currentLookAtY += (this.targetLookAtY - this.currentLookAtY) * 0.05;
-    this.camera.lookAt(0, this.currentLookAtY, 0);
-
-    // --- SCENE ANIMATIONS ---
+    if (this.camera) {
+        this.camera.position.z += (this.targetDistance - this.camera.position.z) * 0.05;
+        this.camera.position.y += (this.targetY - this.camera.position.y) * 0.05;
+        this.currentLookAtY += (this.targetLookAtY - this.currentLookAtY) * 0.05;
+        this.camera.lookAt(0, this.currentLookAtY, 0);
+    }
 
     if (this.movingLight) {
         this.movingLight.position.x = Math.sin(time * 0.5) * 10;
         this.movingLight.position.z = 10 + Math.cos(time * 0.5) * 5;
         this.movingLight.position.y = 2 + Math.sin(time) * 2;
-        // Subtle intensity pulse
         this.movingLight.intensity = 1.0 + Math.sin(time * 2) * 0.2; 
     }
 
     if (this.haloLight) {
-        // Divine pulse behind the idol
         this.haloLight.intensity = 2.0 + Math.sin(time * 1.5) * 0.5;
-        // Subtle color shift between orange and gold
-        const hue = 0.08 + Math.sin(time * 0.2) * 0.02; // ~30deg to ~40deg
+        const hue = 0.08 + Math.sin(time * 0.2) * 0.02; 
         this.haloLight.color.setHSL(hue, 1.0, 0.5);
     }
 
@@ -487,7 +475,9 @@ export class DigitalDarshanComponent implements OnInit, OnDestroy {
         this.particles.material.opacity = 0.3 + Math.sin(time) * 0.1;
     }
     
-    this.renderer.render(this.scene, this.camera);
+    if (this.renderer && this.scene && this.camera) {
+        this.renderer.render(this.scene, this.camera);
+    }
   }
 
   // Interaction Handlers

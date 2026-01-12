@@ -1,18 +1,27 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, Pipe, PipeTransform } from '@angular/core';
 import { TempleService } from '../services/temple.service';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer } from '@angular/platform-browser';
+
+@Pipe({ name: 'safe', standalone: true })
+export class SafePipe implements PipeTransform {
+  constructor(private sanitizer: DomSanitizer) {}
+  transform(url: string) {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+}
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SafePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="bg-orange-50 min-h-screen animate-fade-in">
       <!-- Hero -->
-      <div class="relative h-64 md:h-96 overflow-hidden">
-        <img src="https://picsum.photos/id/1047/1200/600" alt="Temple History" class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-[#800000] bg-opacity-70 flex items-center justify-center">
+      <div class="relative h-64 md:h-96 overflow-hidden group">
+        <img [src]="templeService.siteConfig().historyImageUrl || 'https://opwncdejpaeltylplvhk.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_ujj4zlujj4zlujj4.png'" alt="Temple History" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[10s]">
+        <div class="absolute inset-0 bg-gradient-to-t from-[#800000] to-transparent opacity-90 flex items-center justify-center">
           <h1 class="text-4xl md:text-6xl text-white font-serif font-bold text-center px-4 drop-shadow-xl border-b-4 border-amber-500 pb-2">History & Significance</h1>
         </div>
       </div>
@@ -24,14 +33,10 @@ import { CommonModule } from '@angular/common';
           <div class="lg:col-span-2 space-y-8 text-stone-700 leading-relaxed font-serif">
             
             <section>
-              <h2 class="text-3xl font-bold text-[#800000] mb-4 border-l-4 border-amber-500 pl-4">The Legend of Uttarandhra Tirupati</h2>
-              <p class="mb-4 text-lg">
-                The Lord of the Universe and Vaikuntha, Srimannarayana, takes many forms to protect his devotees. 
-                In this Kaliyuga, he incarnated as Lord Venkateswara to offer solace to mankind.
-              </p>
-              <p class="mb-4 text-lg">
-                Located in the serene surroundings of Pendurthi, Visakhapatnam, the <strong>Sri Venkatadri</strong> temple stands as a testament to devotion. It is widely revered as "Uttarandhra Tirupati" (Tirupati of North Andhra), serving millions of devotees who seek the blessings of the Lord but cannot travel to Tirumala.
-              </p>
+              <h2 class="text-3xl font-bold text-[#800000] mb-4 border-l-4 border-amber-500 pl-4">The Legend of {{ templeService.siteConfig().templeName }}</h2>
+              <div class="prose prose-lg text-stone-700 whitespace-pre-wrap">
+                 {{ templeService.siteConfig().historyContent || 'History content is being updated...' }}
+              </div>
               <div class="bg-amber-100 border-l-4 border-amber-600 p-6 italic text-stone-700 my-6 shadow-sm rounded-r">
                 <p class="mb-3"><strong>Sthala Purana:</strong> Local legends state that the hills of Pendurthi have been a site of penance for sages for centuries, making it a powerful Kshetram.</p>
               </div>
@@ -125,7 +130,7 @@ import { CommonModule } from '@angular/common';
               <!-- Map Placeholder -->
               <div class="w-full md:w-1/3 h-48 bg-stone-800 rounded overflow-hidden">
                 <iframe 
-                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3798.243547568541!2d83.2184!3d17.8284!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a3967d1c6e6d4c1%3A0x6b3b5b6b6b6b6b6b!2sPendurthi!5e0!3m2!1sen!2sin!4v1630000000000!5m2!1sen!2sin" 
+                 [src]="templeService.siteConfig().mapEmbedUrl || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3798.243547568541!2d83.2184!3d17.8284!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a3967d1c6e6d4c1%3A0x6b3b5b6b6b6b6b6b!2sPendurthi!5e0!3m2!1sen!2sin!4v1630000000000!5m2!1sen!2sin' | safe" 
                  width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy">
                </iframe>
               </div>

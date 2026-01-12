@@ -1,4 +1,3 @@
-
 import { Component, ChangeDetectionStrategy, inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { TempleService } from '../services/temple.service';
@@ -121,7 +120,7 @@ import { TempleService } from '../services/temple.service';
       </main>
 
       <!-- Footer -->
-      <footer class="bg-stone-900 text-stone-300 py-12 border-t-8 border-red-900">
+      <footer class="bg-[#2a0a0a] text-stone-300 py-12 border-t-8 border-red-900">
         <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 class="text-xl font-bold text-amber-500 mb-4 font-serif">Contact Us</h3>
@@ -153,9 +152,39 @@ import { TempleService } from '../services/temple.service';
           </div>
         </div>
         <div class="text-center mt-12 pt-8 border-t border-stone-800 text-sm text-stone-500">
-          <p>&copy; 2026 {{ templeService.siteConfig().templeName }}. All Rights Reserved.</p>
+          <p class="mb-1">&copy; 2026 {{ templeService.siteConfig().templeName }}. All Rights Reserved.</p>
+          <p class="text-xs font-medium tracking-wide opacity-80">
+            Designed & Developed by <span class="text-amber-600 font-bold uppercase tracking-widest hover:text-amber-500 transition-colors">JMRSai Technologies</span>
+          </p>
         </div>
       </footer>
     </div>
   `
+})
+export class AppComponent {
+  templeService = inject(TempleService);
+  
+  @ViewChild('bgMusic') bgMusicRef!: ElementRef<HTMLAudioElement>;
+  
+  isMusicPlaying = signal<boolean>(false);
+  isMobileMenuOpen = signal<boolean>(false);
+
+  toggleMusic() {
+    const audio = this.bgMusicRef.nativeElement;
+    if (this.isMusicPlaying()) {
+      audio.pause();
+      this.isMusicPlaying.set(false);
+    } else {
+      audio.play().catch(e => console.error("Audio play failed", e));
+      this.isMusicPlaying.set(true);
+    }
+  }
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen.update(v => !v);
+  }
+
+  closeMobileMenu() {
+    this.isMobileMenuOpen.set(false);
+  }
 }

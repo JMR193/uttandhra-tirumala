@@ -73,7 +73,13 @@ An advanced, full-stack Temple Management System built for **Shri Venkateswara S
 3.  **Environment Configuration**:
     The app comes with a pre-configured `src/environments/environment.ts`. 
     
-    
+### 🗄️ Supabase Setup
+To initialize the backend:
+1.  Go to your Supabase Project Dashboard.
+2.  Open the **SQL Editor**.
+3.  Copy the contents of `supabase_schema.sql` from the project root.
+4.  Run the query to create all required tables and policies.
+5.  Create a storage bucket named `temple-assets` (Public) in the Storage section.
 
 4.  **Run the application**:
     ```bash
